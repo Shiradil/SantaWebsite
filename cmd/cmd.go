@@ -1,4 +1,4 @@
-package main
+package cmd
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func main() {
+func RunServer() {
 	router := mux.NewRouter()
 
 	router.HandleFunc("/", HomeHandler).Methods("GET")

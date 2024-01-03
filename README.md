@@ -11,3 +11,5 @@ Website of gifts for orphans for the new year. Everyone can become Santa for an 
 
 ## Dependencies
 (Will be added soon)
+go get go.mongodb.org/mongo-driver/mongo
+go get -u github.com/gorilla/mux
