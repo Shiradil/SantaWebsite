@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Child Registration</title>
+    <!-- Link to the CSS file -->
+    <link rel="stylesheet" href="stylereg.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Child Registration</h1>
+        <form action="/submit-child-registration" method="post">
+            <div class="form-group">
+                <label for="firstName">Name:</label>
+                <input type="text" id="firstName" name="firstName" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="lastName">Surname:</label>
+                <input type="text" id="lastName" name="lastName" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="phone">Phone Number:</label>
+                <input type="tel" id="phone" name="phone" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+
+            <div class="form-group">
+                <label for="wishes">Wishes:</label>
+                <textarea id="wishes" name="wishes" required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="secretSanta">Secret Santa Mode:</label>
+                <input type="checkbox" id="secretSanta" name="secretSanta">
+            </div>
+
+            <button type="submit">Register</button>
+        </form>
+    </div>
+</body>
+</html>
