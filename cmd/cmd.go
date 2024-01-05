@@ -27,9 +27,9 @@ type Child struct {
 	ID        primitive.ObjectID `bson:"_id,omitempty"`
 	Name      string             `bson:"name"`
 	Surname   string             `bson:"surname"`
-	Email     string             `bson:"name"`
-	Phone     string             `bson:"name"`
-	Password  string             `bson:"name"`
+	Email     string             `bson:"email"`
+	Phone     string             `bson:"phone"`
+	Password  string             `bson:"password"`
 	Wish      string             `bson:"wish"`
 	Volunteer *Volunteer         `bson:"volunteer,omitempty"`
 }
