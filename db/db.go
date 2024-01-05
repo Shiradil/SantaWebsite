@@ -3,31 +3,30 @@ package db
 import (
 	"context"
 	"fmt"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"log"
 )
 
 func DbConnection() {
-	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
-
-	client, err := mongo.Connect(context.Background(), clientOptions)
+	// Use the SetServerAPIOptions() method to set the Stable API version to 1
+	serverAPI := options.ServerAPI(options.ServerAPIVersion1)
+	opts := options.Client().ApplyURI("mongodb+srv://admin:5555@cluster0.byzpypa.mongodb.net/?retryWrites=true&w=majority").SetServerAPIOptions(serverAPI)
+	// Create a new client and connect to the server
+	client, err := mongo.Connect(context.TODO(), opts)
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
-
-	err = client.Ping(context.Background(), nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	fmt.Println("Connected to MongoDB!")
-
 	defer func() {
-		if err = client.Disconnect(context.Background()); err != nil {
-			log.Fatal(err)
+		if err = client.Disconnect(context.TODO()); err != nil {
+			panic(err)
 		}
 	}()
+	// Send a ping to confirm a successful connection
+	if err := client.Database("admin").RunCommand(context.TODO(), bson.D{{"ping", 1}}).Err(); err != nil {
+		panic(err)
+	}
+	fmt.Println("Pinged your deployment. You successfully connected to MongoDB!")
 
 	//collection := client.Database("SantaWeb").Collection("wishes")
 	// тут крч будут функции для работы с монгодб
