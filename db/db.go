@@ -5,30 +5,26 @@ import (
 	"fmt"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"log"
 )
 
-func DbConnection() {
+var Client *mongo.Client
+
+func DbConnection() error {
 	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
 
-	client, err := mongo.Connect(context.Background(), clientOptions)
+	var err error
+	Client, err = mongo.Connect(context.Background(), clientOptions)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
-	err = client.Ping(context.Background(), nil)
+	err = Client.Ping(context.Background(), nil)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	fmt.Println("Connected to MongoDB!")
 
-	defer func() {
-		if err = client.Disconnect(context.Background()); err != nil {
-			log.Fatal(err)
-		}
-	}()
-
-	//collection := client.Database("SantaWeb").Collection("wishes")
-	// тут крч будут функции для работы с монгодб
+	// Вернуть nil, если соединение успешно
+	return nil
 }
