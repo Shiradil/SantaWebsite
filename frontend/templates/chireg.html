@@ -4,13 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Child Registration</title>
-    <!-- Link to the CSS file -->
     <link rel="stylesheet" href="../static/style/stylereg.css">
 </head>
 <body>
     <div class="container">
         <h1>Child Registration</h1>
-        <form action="/submit-child-registration" method="post">
+        <form method="post">
             <div class="form-group">
                 <label for="firstName">Name:</label>
                 <input type="text" id="firstName" name="firstName" required>
@@ -36,9 +35,8 @@
                 <input type="password" id="password" name="password" required>
             </div>
 
-            <button type="submit" onclick="location.href='chil.html'">Register</button>
+            <button type="submit">Register</button>
         </form>
     </div>
-    <script src="../static/js/script.js"></script>
 </body>
 </html>

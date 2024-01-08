@@ -113,11 +113,7 @@ func volRegHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		collection := db.Client.Database("SantaWeb").Collection("volunteers")
-		_, err = collection.InsertOne(context.Background(), volunteer)
-		if err != nil {
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-			return
-		}
+
 		result, err := collection.InsertOne(context.Background(), volunteer)
 		if err != nil {
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -133,6 +129,24 @@ func volRegHandler(w http.ResponseWriter, r *http.Request) {
 
 func chiLogHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
+		phone := r.FormValue("phone")
+		password := r.FormValue("password")
+
+		collection := db.Client.Database("SantaWeb").Collection("children")
+		var child Child
+		err := collection.FindOne(context.Background(), bson.M{"phone": phone}).Decode(&child)
+		if err != nil {
+			http.Error(w, "Invalid phone or password", http.StatusUnauthorized)
+			return
+		}
+
+		err = bcrypt.CompareHashAndPassword([]byte(child.Password), []byte(password))
+		if err != nil {
+			http.Error(w, "Invalid phone or password", http.StatusUnauthorized)
+			return
+		}
+
+		http.Redirect(w, r, fmt.Sprintf("/chil/%s", child.ID.Hex()), http.StatusSeeOther)
 	} else {
 		renderTemplate(w, "chilog.html", nil)
 	}
@@ -163,14 +177,15 @@ func chiRegHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		collection := db.Client.Database("SantaWeb").Collection("children")
-		_, err = collection.InsertOne(context.Background(), child)
+
+		result, err := collection.InsertOne(context.Background(), child)
 		if err != nil {
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			return
 		}
 
-		w.Write([]byte("Registration Successful!"))
-		http.Redirect(w, r, fmt.Sprintf("/vol/%s", child.ID.Hex()), http.StatusSeeOther)
+		insertedID := result.InsertedID.(primitive.ObjectID)
+		http.Redirect(w, r, fmt.Sprintf("/chil/%s", insertedID.Hex()), http.StatusSeeOther)
 	} else {
 		renderTemplate(w, "chireg.html", nil)
 	}
