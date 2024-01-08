@@ -3,19 +3,14 @@ package db
 import (
 	"context"
 	"fmt"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"log"
-	"os/user"
 )
 
 var Client *mongo.Client
 
 func DbConnection() error {
 	clientOptions := options.Client().ApplyURI("mongodb+srv://shirbaev04:bauka@cluster0.xttjkma.mongodb.net/")
-
 	var err error
 	Client, err = mongo.Connect(context.Background(), clientOptions)
 	if err != nil {
@@ -28,20 +23,34 @@ func DbConnection() error {
 	}
 
 	fmt.Println("Connected to MongoDB!")
-	id, err := primitive.ObjectIDFromHex("65980c087ef3cf7bf3fc6870")
 
-	collection := Client.Database("SantaWeb").Collection("volunteers")
-	var result user.User
-	err = collection.FindOne(context.Background(), bson.M{"_id": id}).Decode(&result)
-	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			fmt.Println("Документ не найден")
-		} else {
-			log.Fatal(err)
-		}
-	}
+	//if err := runMigrations(); err != nil {
+	//	log.Fatal(err)
+	//}
 
-	fmt.Println(result.Username)
 	// Вернуть nil, если соединение успешно
 	return nil
 }
+
+//func runMigrations() error {
+//	dir := "file://db/migrations"
+//	driver, err := mongodb.WithInstance(Client, &mongodb.Config{})
+//	if err != nil {
+//		return err
+//	}
+//
+//	m, err := migrate.NewWithDatabaseInstance(
+//		fmt.Sprintf("%s", dir),
+//		"mongodb", driver,
+//	)
+//	if err != nil {
+//		return err
+//	}
+//
+//	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
+//		return err
+//	}
+//
+//	fmt.Println("Migrations applied successfully!")
+//	return nil
+//}

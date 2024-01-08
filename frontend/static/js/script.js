@@ -62,3 +62,75 @@ document.addEventListener('DOMContentLoaded', function() {
 document.addEventListener('DOMContentLoaded', (event) => {
     document.getElementById('js-check').innerText = "script.js is successfully connected!";
 });
+
+function submitRegistration() {
+    var formData = {
+        name: document.getElementById("firstName").value,
+        lastName: document.getElementById("lastName").value,
+        email: document.getElementById("email").value,
+        phone: document.getElementById("phone").value,
+        password: document.getElementById("password").value,
+        child: null
+    };
+
+    fetch('/submit-volunteer-registration', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.text();
+        })
+        .then(data => {
+            console.log(data);
+        })
+        .catch(error => {
+            console.error('There has been a problem with your fetch operation:', error);
+        });
+
+    // Предотвращаем отправку формы
+    return false;
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    var form = document.getElementById("loginForm");
+
+    form.addEventListener("submit", function (event) {
+        event.preventDefault(); // Предотвратить стандартное поведение формы
+
+        // Получить данные формы
+        var formData = {
+            phone: document.getElementById("phone").value,
+            password: document.getElementById("password").value,
+        };
+
+        // Отправить POST-запрос на сервер
+        fetch('/submit-volunteer-login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams(formData),
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.text();
+            })
+            .then(data => {
+                console.log(data);
+                // Обработка успешного ответа, если нужно
+            })
+            .catch(error => {
+                console.error('There has been a problem with your fetch operation:', error);
+                // Обработка ошибок
+            });
+    });
+});
+

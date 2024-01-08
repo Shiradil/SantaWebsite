@@ -4,154 +4,217 @@ import (
 	"SantaWeb/db"
 	"context"
 	"fmt"
+	"github.com/gorilla/mux"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
 	"html/template"
 	"log"
 	"net/http"
-
-	"github.com/gorilla/mux"
 )
 
 type Volunteer struct {
-	ID       primitive.ObjectID `bson:"_id,omitempty"`
-	Name     string             `bson:"name"`
-	Surname  string             `bson:"lastName"`
-	Email    string             `bson:"email"`
-	Phone    string             `bson:"phone"`
-	Password string             `bson:"password"`
-	Child    *Child             `bson:"child,omitempty"`
+	ID       primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
+	Name     string             `json:"name" bson:"name"`
+	Surname  string             `json:"lastName" bson:"lastName"`
+	Email    string             `json:"email" bson:"email"`
+	Phone    string             `json:"phone" bson:"phone"`
+	Password string             `json:"password" bson:"password"`
+	Child    *Child             `json:"child,omitempty" bson:"child,omitempty"`
 }
 
 type Child struct {
-	ID        primitive.ObjectID `bson:"_id,omitempty"`
-	Name      string             `bson:"name"`
-	Surname   string             `bson:"surname"`
-	Email     string             `bson:"email"`
-	Phone     string             `bson:"phone"`
-	Password  string             `bson:"password"`
-	Wish      string             `bson:"wish"`
-	Volunteer *Volunteer         `bson:"volunteer,omitempty"`
+	ID        primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
+	Name      string             `json:"name" bson:"name"`
+	Surname   string             `json:"surname" bson:"surname"`
+	Email     string             `json:"email" bson:"email"`
+	Phone     string             `json:"phone" bson:"phone"`
+	Password  string             `json:"password" bson:"password"`
+	Wish      string             `json:"wish" bson:"wish"`
+	Volunteer *Volunteer         `json:"volunteer,omitempty" bson:"volunteer,omitempty"`
 }
 
 func RunServer() {
-	// подключение к монгодб
-	db.DbConnection()
+	err := db.DbConnection()
+	if err != nil {
+		log.Fatal("Database connection failed:", err)
+	}
 
 	router := mux.NewRouter()
-
-	// templates connecting
-	router.HandleFunc("/", PageHandler("home.html")).Methods("GET")
-	// children
-	router.HandleFunc("/chilog", PageHandler("chilog.html")).Methods("GET")
-	router.HandleFunc("/chireg", PageHandler("chireg.html")).Methods("GET")
-	router.HandleFunc("/chil", PageHandler("chil.html")).Methods("GET")
-	// volunteers
-	router.HandleFunc("/vollogin", PageHandler("vollogin.html")).Methods("GET")
-	router.HandleFunc("/volreg", PageHandler("volreg.html")).Methods("GET")
-	router.HandleFunc("/vol", PageHandler("vol.html")).Methods("GET")
-
-	// css and js connecting
-	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("frontend/static"))))
-
-	router.HandleFunc("/letter", LetterHandler).Methods("POST")
-	router.HandleFunc("/submit-volunteer-registration", RegisterVolunteerHandler).Methods("POST")
-	router.HandleFunc("/submit-child-registration", RegisterChildHandler).Methods("POST")
+	setupRoutes(router)
 
 	port := ":8080"
 	fmt.Printf("Starting server on port %s...\n", port)
 	log.Fatal(http.ListenAndServe(port, router))
 }
 
-func PageHandler(pageName string) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		tmpl, err := template.ParseFiles("frontend/templates/" + pageName)
+func setupRoutes(router *mux.Router) {
+	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("frontend/static"))))
+
+	router.HandleFunc("/", homeHandler).Methods("GET")
+	router.HandleFunc("/vol/{id}", volunteerPersonalPageHandler).Methods("GET")
+	router.HandleFunc("/chil/{id}", childPersonalPageHandler).Methods("GET")
+	router.HandleFunc("/vollogin", volLoginHandler).Methods("GET", "POST")
+	router.HandleFunc("/volreg", volRegHandler).Methods("GET", "POST")
+	router.HandleFunc("/chilog", chiLogHandler).Methods("GET", "POST")
+	router.HandleFunc("/chireg", chiRegHandler).Methods("GET", "POST")
+}
+
+func homeHandler(w http.ResponseWriter, r *http.Request) {
+	renderTemplate(w, "home.html", nil)
+}
+
+func volLoginHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST" {
+		phone := r.FormValue("phone")
+		password := r.FormValue("password")
+
+		collection := db.Client.Database("SantaWeb").Collection("volunteers")
+		var volunteer Volunteer
+		err := collection.FindOne(context.Background(), bson.M{"phone": phone}).Decode(&volunteer)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			http.Error(w, "Invalid phone or password", http.StatusUnauthorized)
 			return
 		}
 
-		tmpl.Execute(w, nil)
+		err = bcrypt.CompareHashAndPassword([]byte(volunteer.Password), []byte(password))
+		if err != nil {
+			http.Error(w, "Invalid phone or password", http.StatusUnauthorized)
+			return
+		}
+
+		http.Redirect(w, r, fmt.Sprintf("/vol/%s", volunteer.ID.Hex()), http.StatusSeeOther)
+	} else {
+		renderTemplate(w, "vollogin.html", nil)
 	}
 }
 
-func LetterHandler(w http.ResponseWriter, r *http.Request) {
-	// тут напишем добавление писем в базу данных
+func volRegHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST" {
+		firstName := r.FormValue("firstName")
+		lastName := r.FormValue("lastName")
+		email := r.FormValue("email")
+		phone := r.FormValue("phone")
+		password := r.FormValue("password")
 
-	fmt.Fprintln(w, "Спасибо за ваше письмо! Санта обязательно его увидит.")
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+		if err != nil {
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+
+		volunteer := Volunteer{
+			Name:     firstName,
+			Surname:  lastName,
+			Email:    email,
+			Phone:    phone,
+			Password: string(hashedPassword),
+			Child:    nil,
+		}
+
+		collection := db.Client.Database("SantaWeb").Collection("volunteers")
+		_, err = collection.InsertOne(context.Background(), volunteer)
+		if err != nil {
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+		result, err := collection.InsertOne(context.Background(), volunteer)
+		if err != nil {
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+
+		insertedID := result.InsertedID.(primitive.ObjectID)
+		http.Redirect(w, r, fmt.Sprintf("/vol/%s", insertedID.Hex()), http.StatusSeeOther)
+	} else {
+		renderTemplate(w, "volreg.html", nil)
+	}
 }
 
-func RegisterVolunteerHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
+func chiLogHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST" {
+	} else {
+		renderTemplate(w, "chilog.html", nil)
 	}
+}
 
-	firstName := r.FormValue("firstName")
-	lastName := r.FormValue("lastName")
-	email := r.FormValue("email")
-	phone := r.FormValue("phone")
-	password := r.FormValue("password")
+func chiRegHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST" {
+		firstName := r.FormValue("firstName")
+		lastName := r.FormValue("lastName")
+		email := r.FormValue("email")
+		phone := r.FormValue("phone")
+		password := r.FormValue("password")
 
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+		if err != nil {
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+
+		child := Child{
+			Name:      firstName,
+			Surname:   lastName,
+			Email:     email,
+			Phone:     phone,
+			Password:  string(hashedPassword),
+			Wish:      "",
+			Volunteer: nil,
+		}
+
+		collection := db.Client.Database("SantaWeb").Collection("children")
+		_, err = collection.InsertOne(context.Background(), child)
+		if err != nil {
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+
+		w.Write([]byte("Registration Successful!"))
+		http.Redirect(w, r, fmt.Sprintf("/vol/%s", child.ID.Hex()), http.StatusSeeOther)
+	} else {
+		renderTemplate(w, "chireg.html", nil)
+	}
+}
+
+func renderTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
+	t, err := template.ParseFiles("frontend/templates/" + tmpl)
 	if err != nil {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	t.Execute(w, data)
+}
 
-	volunteer := Volunteer{
-		Name:     firstName,
-		Surname:  lastName,
-		Email:    email,
-		Phone:    phone,
-		Password: string(hashedPassword),
-		Child:    nil,
-	}
+func volunteerPersonalPageHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	volunteerID := vars["id"]
 
+	var volunteer Volunteer
 	collection := db.Client.Database("SantaWeb").Collection("volunteers")
-	_, err = collection.InsertOne(context.Background(), volunteer)
+	objID, _ := primitive.ObjectIDFromHex(volunteerID)
+
+	err := collection.FindOne(context.Background(), bson.M{"_id": objID}).Decode(&volunteer)
 	if err != nil {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		http.Error(w, "Volunteer not found", http.StatusNotFound)
 		return
 	}
 
-	w.Write([]byte("Registration Successful!"))
+	renderTemplate(w, "vol.html", volunteer)
 }
 
-func RegisterChildHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
+func childPersonalPageHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	childID := vars["id"]
 
-	firstName := r.FormValue("firstName")
-	lastName := r.FormValue("lastName")
-	email := r.FormValue("email")
-	phone := r.FormValue("phone")
-	password := r.FormValue("password")
-
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	if err != nil {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
-
-	child := Child{
-		Name:      firstName,
-		Surname:   lastName,
-		Email:     email,
-		Phone:     phone,
-		Password:  string(hashedPassword),
-		Wish:      "",
-		Volunteer: nil,
-	}
-
+	var child Child
 	collection := db.Client.Database("SantaWeb").Collection("children")
-	_, err = collection.InsertOne(context.Background(), child)
+	objID, _ := primitive.ObjectIDFromHex(childID)
+
+	err := collection.FindOne(context.Background(), bson.M{"_id": objID}).Decode(&child)
 	if err != nil {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		http.Error(w, "Child not found", http.StatusNotFound)
 		return
 	}
 
-	w.Write([]byte("Registration Successful!"))
+	renderTemplate(w, "chil.html", child)
 }
