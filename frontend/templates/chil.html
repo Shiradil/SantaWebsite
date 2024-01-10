@@ -2,22 +2,52 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta viewport="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Child's Personal Account</title>
     <link rel="stylesheet" href="../static/style/stylechi.css">
 </head>
 <body>
+    <div class="child-personal-card">
+        <h2>{{.Name}} {{.Surname}}</h2>
+        <p><strong>Email:</strong> {{.Email}}</p>
+        <p><strong>Phone:</strong> {{.Phone}}</p>
+    </div>
+
     <div class="container">
         <h1>Your Wish List</h1>
         <form action="/update-wishes" method="post">
             <div class="form-group">
                 <label for="wishes">Enter your wishes:</label>
-                <textarea id="wishes" name="wishes" rows="4" required>Enter your wishes here...</textarea>
+                <textarea id="wishes" name="wishes" rows="4" required>Напиши свои пожеланиея</textarea>
             </div>
             <button type="submit">Update Wishes</button>
         </form>
     </div>
 
-    <script src="../static/js/script.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function(){
+            document.querySelector("form").addEventListener("submit", function(e){
+                e.preventDefault(); 
+    
+                let wishes = document.getElementById("wishes").value;
+                let data = JSON.stringify({ wishes: wishes });
+    
+                fetch("/update-wishes", {
+                    method: "PUT", 
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: data
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Success:', data);
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
+            });
+        });
+    </script>
 </body>
 </html>

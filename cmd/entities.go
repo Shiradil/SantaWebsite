@@ -22,3 +22,9 @@ type Child struct {
 	Wish      string             `json:"wish" bson:"wish"`
 	Volunteer *Volunteer         `json:"volunteer,omitempty" bson:"volunteer,omitempty"`
 }
+
+type WishesData struct {
+    ChildId primitive.ObjectID `json:"childId"`
+    Wish    string             `json:"wish"`
+}
+

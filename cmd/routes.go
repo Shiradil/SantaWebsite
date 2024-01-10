@@ -1,8 +1,9 @@
 package cmd
 
 import (
-	"github.com/gorilla/mux"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 func setupRoutes(router *mux.Router) {
@@ -15,4 +16,5 @@ func setupRoutes(router *mux.Router) {
 	router.HandleFunc("/volreg", volRegHandler).Methods("GET", "POST")
 	router.HandleFunc("/chilog", chiLogHandler).Methods("GET", "POST")
 	router.HandleFunc("/chireg", chiRegHandler).Methods("GET", "POST")
+	router.HandleFunc("/update-wish", updateWishHandler).Methods("PUT")
 }

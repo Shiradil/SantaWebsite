@@ -4,12 +4,13 @@ import (
 	"SantaWeb/db"
 	"context"
 	"fmt"
+	"html/template"
+	"net/http"
+
 	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
-	"html/template"
-	"net/http"
 )
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
@@ -184,4 +185,31 @@ func childPersonalPageHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	renderTemplate(w, "chil.html", child)
+}
+
+func updateWishHandler(w http.ResponseWriter, r *http.Request) {
+    if r.Method == "PUT" {
+        childIdString := r.FormValue("childId")
+        newWish := r.FormValue("wish")
+
+        childId, err := primitive.ObjectIDFromHex(childIdString)
+        if err != nil {
+            http.Error(w, "Invalid Child ID", http.StatusBadRequest)
+            return
+        }
+
+        collection := db.Client.Database("SantaWeb").Collection("Children")
+
+        filter := bson.M{"_id": childId}
+        update := bson.M{"$set": bson.M{"wish": newWish}}
+        _, err = collection.UpdateOne(context.Background(), filter, update)
+        if err != nil {
+            http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+            return
+        }
+
+        http.Redirect(w, r, "/path-after-updating-wish", http.StatusSeeOther)
+    } else {
+        http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+    }
 }
