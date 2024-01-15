@@ -1,4 +1,3 @@
-console.log("script.js is successfully connected!");
 // This is a placeholder function. In a real app, you would implement the actual logic.
 function chooseToGift(childId) {
     console.log("Gift chosen for child with ID:", childId);
@@ -57,10 +56,6 @@ document.addEventListener('DOMContentLoaded', function() {
             // Handle errors here
         });
     });
-});
-
-document.addEventListener('DOMContentLoaded', (event) => {
-    document.getElementById('js-check').innerText = "script.js is successfully connected!";
 });
 
 function submitRegistration() {

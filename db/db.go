@@ -17,6 +17,8 @@ func DbConnection() error {
 		return err
 	}
 
+	CreateIndexes()
+
 	err = Client.Ping(context.Background(), nil)
 	if err != nil {
 		return err
@@ -24,33 +26,6 @@ func DbConnection() error {
 
 	fmt.Println("Connected to MongoDB!")
 
-	//if err := runMigrations(); err != nil {
-	//	log.Fatal(err)
-	//}
-
 	// Вернуть nil, если соединение успешно
 	return nil
 }
-
-//func runMigrations() error {
-//	dir := "file://db/migrations"
-//	driver, err := mongodb.WithInstance(Client, &mongodb.Config{})
-//	if err != nil {
-//		return err
-//	}
-//
-//	m, err := migrate.NewWithDatabaseInstance(
-//		fmt.Sprintf("%s", dir),
-//		"mongodb", driver,
-//	)
-//	if err != nil {
-//		return err
-//	}
-//
-//	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
-//		return err
-//	}
-//
-//	fmt.Println("Migrations applied successfully!")
-//	return nil
-//}

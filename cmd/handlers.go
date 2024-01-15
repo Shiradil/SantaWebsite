@@ -3,6 +3,7 @@ package cmd
 import (
 	"SantaWeb/db"
 	"context"
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -89,13 +90,15 @@ func chiLogHandler(w http.ResponseWriter, r *http.Request) {
 		var child Child
 		err := collection.FindOne(context.Background(), bson.M{"phone": phone}).Decode(&child)
 		if err != nil {
-			http.Error(w, "Invalid phone or password", http.StatusUnauthorized)
+			errorResponse := ErrorResponse{Status: "400", Message: "Некорректное JSON-сообщение"}
+			sendJSONResponse(w, errorResponse, http.StatusUnauthorized)
 			return
 		}
 
 		err = bcrypt.CompareHashAndPassword([]byte(child.Password), []byte(password))
 		if err != nil {
-			http.Error(w, "Invalid phone or password", http.StatusUnauthorized)
+			errorResponse := ErrorResponse{Status: "400", Message: "Некорректное JSON-сообщение"}
+			sendJSONResponse(w, errorResponse, http.StatusUnauthorized)
 			return
 		}
 
@@ -188,28 +191,39 @@ func childPersonalPageHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func updateWishHandler(w http.ResponseWriter, r *http.Request) {
-    if r.Method == "PUT" {
-        childIdString := r.FormValue("childId")
-        newWish := r.FormValue("wish")
+	if r.Method == "PUT" {
+		childIdString := r.FormValue("childId")
+		newWish := r.FormValue("wish")
 
-        childId, err := primitive.ObjectIDFromHex(childIdString)
-        if err != nil {
-            http.Error(w, "Invalid Child ID", http.StatusBadRequest)
-            return
-        }
+		childId, err := primitive.ObjectIDFromHex(childIdString)
+		if err != nil {
+			http.Error(w, "Invalid Child ID", http.StatusBadRequest)
+			return
+		}
 
-        collection := db.Client.Database("SantaWeb").Collection("Children")
+		collection := db.Client.Database("SantaWeb").Collection("Children")
 
-        filter := bson.M{"_id": childId}
-        update := bson.M{"$set": bson.M{"wish": newWish}}
-        _, err = collection.UpdateOne(context.Background(), filter, update)
-        if err != nil {
-            http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-            return
-        }
+		filter := bson.M{"_id": childId}
+		update := bson.M{"$set": bson.M{"wish": newWish}}
+		_, err = collection.UpdateOne(context.Background(), filter, update)
+		if err != nil {
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
 
-        http.Redirect(w, r, "/path-after-updating-wish", http.StatusSeeOther)
-    } else {
-        http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
-    }
+		http.Redirect(w, r, "/path-after-updating-wish", http.StatusSeeOther)
+	} else {
+		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+	}
+}
+
+func sendJSONResponse(w http.ResponseWriter, data interface{}, statusCode int) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(statusCode)
+
+	err := json.NewEncoder(w).Encode(data)
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
 }

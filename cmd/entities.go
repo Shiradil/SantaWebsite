@@ -24,7 +24,11 @@ type Child struct {
 }
 
 type WishesData struct {
-    ChildId primitive.ObjectID `json:"childId"`
-    Wish    string             `json:"wish"`
+	ChildId primitive.ObjectID `json:"childId"`
+	Wish    string             `json:"wish"`
 }
 
+type ErrorResponse struct {
+	Status  string `json:"status"`
+	Message string `json:"message"`
+}
