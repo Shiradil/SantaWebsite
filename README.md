@@ -6,10 +6,12 @@ Website of gifts for orphans for the new year. Everyone can become Santa for an 
 2. Nargiz Skakova
 3. Baurzhan Saliyev
 
-## Instructions
-(Will be added soon)
+## Instructions to run
+1. To run server, you should run app.go
+2. In the terminal, you will see port. Our server runs on port 8080. Just past localhost:8080.
+3. Done, your are on the website
 
 ## Dependencies
-(Will be added soon)
-go get go.mongodb.org/mongo-driver/mongo
-go get -u github.com/gorilla/mux
+Mongo driver: go get go.mongodb.org/mongo-driver
+Gorilla mux: go get -u github.com/gorilla/mux
+Bcrypt: go get golang.org/x/crypto/bcrypt
