@@ -14,8 +14,28 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+type errors struct {
+	ErrorCode int
+	ErrorMsg  string
+}
+
 func homeHandler(w http.ResponseWriter, r *http.Request) {
-	renderTemplate(w, "home.html", nil)
+	if r.URL.Path != "/" {
+		w.WriteHeader(http.StatusNotFound)
+		ErrorHandler(w, r, http.StatusNotFound, http.StatusText(http.StatusNotFound))
+		return
+	}
+	if r.Method != "GET" {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		ErrorHandler(w, r, http.StatusMethodNotAllowed, http.StatusText(http.StatusMethodNotAllowed))
+		return
+	}
+	err := renderTemplate(w, "home.html", nil)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		ErrorHandler(w, r, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
+		return
+	}
 }
 
 func volLoginHandler(w http.ResponseWriter, r *http.Request) {
@@ -70,7 +90,8 @@ func volRegHandler(w http.ResponseWriter, r *http.Request) {
 
 		result, err := collection.InsertOne(context.Background(), volunteer)
 		if err != nil {
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			w.WriteHeader(http.StatusInternalServerError)
+			ErrorHandler(w, r, http.StatusMethodNotAllowed, http.StatusText(http.StatusMethodNotAllowed))
 			return
 		}
 
@@ -118,7 +139,8 @@ func chiRegHandler(w http.ResponseWriter, r *http.Request) {
 
 		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 		if err != nil {
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			w.WriteHeader(http.StatusInternalServerError)
+			ErrorHandler(w, r, http.StatusMethodNotAllowed, http.StatusText(http.StatusMethodNotAllowed))
 			return
 		}
 
@@ -136,7 +158,8 @@ func chiRegHandler(w http.ResponseWriter, r *http.Request) {
 
 		result, err := collection.InsertOne(context.Background(), child)
 		if err != nil {
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			w.WriteHeader(http.StatusInternalServerError)
+			ErrorHandler(w, r, http.StatusMethodNotAllowed, http.StatusText(http.StatusMethodNotAllowed))
 			return
 		}
 
@@ -147,13 +170,16 @@ func chiRegHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func renderTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
+func renderTemplate(w http.ResponseWriter, tmpl string, data interface{}) error {
 	t, err := template.ParseFiles("frontend/templates/" + tmpl)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return err
 	}
-	t.Execute(w, data)
+	err = t.Execute(w, data)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func volunteerPersonalPageHandler(w http.ResponseWriter, r *http.Request) {
@@ -226,4 +252,19 @@ func sendJSONResponse(w http.ResponseWriter, data interface{}, statusCode int) {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
+}
+
+func ErrorHandler(w http.ResponseWriter, r *http.Request, errCode int, msg string) {
+	t, err := template.ParseFiles("frontend/templates/Error.html")
+	if err != nil {
+		// w.WriteHeader(http.StatusInternalServerError)
+		ErrorHandler(w, r, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
+		return
+	}
+	Errors := errors{
+		ErrorCode: errCode,
+		ErrorMsg:  msg,
+	}
+	// w.WriteHeader(Errors.ErrorCode)
+	t.Execute(w, Errors)
 }

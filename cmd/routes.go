@@ -17,4 +17,8 @@ func setupRoutes(router *mux.Router) {
 	router.HandleFunc("/chilog", chiLogHandler).Methods("GET", "POST")
 	router.HandleFunc("/chireg", chiRegHandler).Methods("GET", "POST")
 	router.HandleFunc("/update-wish", updateWishHandler).Methods("PUT")
+
+	router.NotFoundHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ErrorHandler(w, r, http.StatusNotFound, http.StatusText(http.StatusNotFound))
+	})
 }
