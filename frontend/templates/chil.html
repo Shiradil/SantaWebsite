@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Child's Personal Account</title>
-    <!-- Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../static/style/stylechi.css">
 </head>
@@ -18,7 +17,7 @@
 
     <div class="container">
         <h1>Your Wish List</h1>
-        <form action="/update-wishes" method="post">
+        <form method="post" action="/update-wishes">
             <div class="form-group">
                 <label for="wishes">Enter your wishes:</label>
                 <textarea class="form-control" id="wishes" name="wishes" rows="4" required>Write your wishes</textarea>
@@ -28,35 +27,37 @@
     </div>
 </div>
 
-<!-- Bootstrap JS, Popper.js, and jQuery -->
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function(){
-        document.querySelector("form").addEventListener("submit", function(e){
-            e.preventDefault();
+    var form = document.querySelector('form');
+    var submitButton = document.querySelector('button[type="submit"]');
 
-            let wishes = document.getElementById("wishes").value;
-            let data = JSON.stringify({ wishes: wishes });
+    form.addEventListener('submit', function (event) {
+        event.preventDefault(); 
 
-            fetch("/update-wishes", {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: data
-            })
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Success:', data);
-                })
-                .catch((error) => {
-                    console.error('Error:', error);
-                });
+        var wishesText = document.getElementById('wishes').value;
+
+        var formData = new FormData();
+        formData.append('wishes', wishesText);
+
+        fetch('/update-wishes', {
+            method: 'POST',
+            body: formData
+        })
+        .then(function (response) {
+            if (response.ok) {
+                console.log('Wishes updated successfully.');
+            } else {
+                console.error('Error updating wishes.');
+            }
+        })
+        .catch(function (error) {
+            console.error('Network error:', error);
         });
+        console.log('Form submitted');
     });
+    console.log('Form submitted');
 </script>
-</body>
-</html>

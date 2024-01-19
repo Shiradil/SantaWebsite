@@ -16,5 +16,5 @@ func setupRoutes(router *mux.Router) {
 	router.HandleFunc("/volreg", volRegHandler).Methods("GET", "POST")
 	router.HandleFunc("/chilog", chiLogHandler).Methods("GET", "POST")
 	router.HandleFunc("/chireg", chiRegHandler).Methods("GET", "POST")
-	router.HandleFunc("/update-wish", updateWishHandler).Methods("PUT")
+	router.HandleFunc("/update-wishes", updateWishesHandler).Methods("POST")
 }
