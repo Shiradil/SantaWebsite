@@ -4,17 +4,20 @@ import (
 	"SantaWeb/db"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
-	"html/template"
-	"net/http"
-
 	"github.com/gorilla/mux"
+	"github.com/gorilla/sessions"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
+	"html/template"
+	"net/http"
 )
 
-type errors struct {
+var store = sessions.NewCookieStore([]byte("your-secret-key"))
+
+type errorss struct {
 	ErrorCode int
 	ErrorMsg  string
 }
@@ -155,6 +158,7 @@ func chiRegHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		collection := db.Client.Database("SantaWeb").Collection("children")
+		collectionWishes := db.Client.Database("SantaWeb").Collection("wishes")
 
 		result, err := collection.InsertOne(context.Background(), child)
 		if err != nil {
@@ -164,10 +168,21 @@ func chiRegHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		insertedID := result.InsertedID.(primitive.ObjectID)
+
+		wishes := WishesData{
+			ChildID: insertedID,
+			Wishes:  "",
+		}
+		_, err = collectionWishes.InsertOne(context.Background(), wishes)
+		if err != nil {
+			http.Error(w, "Error creating wish", http.StatusInternalServerError)
+			return
+		}
 		http.Redirect(w, r, fmt.Sprintf("/chil/%s", insertedID.Hex()), http.StatusSeeOther)
 	} else {
 		renderTemplate(w, "chireg.html", nil)
 	}
+
 }
 
 func renderTemplate(w http.ResponseWriter, tmpl string, data interface{}) error {
@@ -216,7 +231,7 @@ func childPersonalPageHandler(w http.ResponseWriter, r *http.Request) {
 	renderTemplate(w, "chil.html", child)
 }
 
-func updateWishHandler(w http.ResponseWriter, r *http.Request) {
+/*func updateWishHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "PUT" {
 		childIdString := r.FormValue("childId")
 		newWish := r.FormValue("wish")
@@ -241,7 +256,7 @@ func updateWishHandler(w http.ResponseWriter, r *http.Request) {
 	} else {
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 	}
-}
+}*/
 
 func sendJSONResponse(w http.ResponseWriter, data interface{}, statusCode int) {
 	w.Header().Set("Content-Type", "application/json")
@@ -254,6 +269,57 @@ func sendJSONResponse(w http.ResponseWriter, data interface{}, statusCode int) {
 	}
 }
 
+func updateWishesHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	childID, err := getChildIDFromSession(r)
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	err = r.ParseForm()
+	if err != nil {
+		http.Error(w, "Error parsing form", http.StatusBadRequest)
+		return
+	}
+	wishes := r.FormValue("wishes")
+
+	wishesCollection := db.Client.Database("SantaWeb").Collection("wishes")
+
+	filter := bson.M{"childId": childID}
+	update := bson.M{"$set": bson.M{"wishes": wishes}}
+	_, err = wishesCollection.UpdateOne(context.Background(), filter, update)
+	if err != nil {
+		http.Error(w, "Error updating wishes", http.StatusInternalServerError)
+		return
+	}
+
+	http.Redirect(w, r, "/path-to-child-page", http.StatusSeeOther)
+}
+
+func getChildIDFromSession(r *http.Request) (primitive.ObjectID, error) {
+	session, err := store.Get(r, "session-name")
+	if err != nil {
+		return primitive.NilObjectID, err
+	}
+
+	childID, ok := session.Values["childID"].(string)
+	if !ok {
+		return primitive.NilObjectID, errors.New("Child ID not found in session")
+	}
+
+	objID, err := primitive.ObjectIDFromHex(childID)
+	if err != nil {
+		return primitive.NilObjectID, err
+	}
+
+	return objID, nil
+}
+
 func ErrorHandler(w http.ResponseWriter, r *http.Request, errCode int, msg string) {
 	t, err := template.ParseFiles("frontend/templates/Error.html")
 	if err != nil {
@@ -261,7 +327,7 @@ func ErrorHandler(w http.ResponseWriter, r *http.Request, errCode int, msg strin
 		ErrorHandler(w, r, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 		return
 	}
-	Errors := errors{
+	Errors := errorss{
 		ErrorCode: errCode,
 		ErrorMsg:  msg,
 	}

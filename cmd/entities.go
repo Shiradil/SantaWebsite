@@ -1,6 +1,10 @@
 package cmd
 
-import "go.mongodb.org/mongo-driver/bson/primitive"
+import (
+	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
+)
 
 type Volunteer struct {
 	ID       primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
@@ -24,8 +28,10 @@ type Child struct {
 }
 
 type WishesData struct {
-	ChildId primitive.ObjectID `json:"childId"`
-	Wish    string             `json:"wish"`
+	ID        primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
+	ChildID   primitive.ObjectID `json:"childId" bson:"childId"`
+	Wishes    string             `json:"wishes" bson:"wishes"`
+	CreatedAt time.Time          `json:"createdAt" bson:"createdAt"`
 }
 
 type ErrorResponse struct {
