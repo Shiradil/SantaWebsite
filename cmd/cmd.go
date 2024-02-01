@@ -1,21 +1,22 @@
-package cmd
+package main
 
 import (
-	"SantaWeb/db"
+	"SantaWeb/internal/db"
+	"SantaWeb/internal/handlers"
 	"fmt"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 )
 
-func RunServer() {
+func main() {
 	err := db.DbConnection()
 	if err != nil {
 		log.Fatal("Database connection failed:", err)
 	}
 
 	router := mux.NewRouter()
-	setupRoutes(router)
+	handlers.SetupRoutes(router)
 
 	port := ":8080"
 	fmt.Printf("Starting server on port %s...\n", port)
