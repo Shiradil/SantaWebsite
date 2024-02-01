@@ -10,9 +10,11 @@ import (
 	"github.com/gorilla/sessions"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"golang.org/x/crypto/bcrypt"
 	"html/template"
 	"net/http"
+	"strconv"
 )
 
 var store = sessions.NewCookieStore([]byte("your-secret-key"))
@@ -20,6 +22,35 @@ var store = sessions.NewCookieStore([]byte("your-secret-key"))
 type errorss struct {
 	ErrorCode int
 	ErrorMsg  string
+}
+
+func getChildren(page int) ([]Child, error) {
+	limit := 10
+	offset := 0
+
+	if page > 1 {
+		offset = (page - 1) * limit
+	}
+
+	collection := db.Client.Database("SantaWeb").Collection("children")
+
+	findOptions := options.Find().SetLimit(int64(limit)).SetSkip(int64(offset))
+	cursor, err := collection.Find(context.Background(), bson.D{}, findOptions)
+	if err != nil {
+		return nil, fmt.Errorf("error finding children: %v", err)
+	}
+	defer cursor.Close(context.Background())
+
+	var children []Child
+	for cursor.Next(context.Background()) {
+		var child Child
+		if err := cursor.Decode(&child); err != nil {
+			return nil, fmt.Errorf("error decoding children: %v", err)
+		}
+		children = append(children, child)
+	}
+
+	return children, nil
 }
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
@@ -205,6 +236,7 @@ func renderTemplate(w http.ResponseWriter, tmpl string, data interface{}) error 
 	if err != nil {
 		return err
 	}
+
 	err = t.Execute(w, data)
 	if err != nil {
 		return err
@@ -226,7 +258,25 @@ func volunteerPersonalPageHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	renderTemplate(w, "vol.html", volunteer)
+	page := r.URL.Query().Get("page")
+	var p int
+	if page == "" {
+		p = 0
+	} else {
+		p, _ = strconv.Atoi(page)
+	}
+
+	children, _ := getChildren(p)
+
+	data := struct {
+		Volunteer Volunteer
+		Children  []Child
+	}{
+		Volunteer: volunteer,
+		Children:  children,
+	}
+
+	renderTemplate(w, "vol.html", data)
 }
 
 func childPersonalPageHandler(w http.ResponseWriter, r *http.Request) {
