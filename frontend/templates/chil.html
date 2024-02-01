@@ -19,44 +19,14 @@
         <form method="post" action="/update-wishes">
             <div class="form-group">
                 <label for="wishes">Enter your wishes:</label>
-                <textarea class="form-control" id="wishes" name="wishes" rows="4" required>Write your wishes</textarea>
+                <textarea class="form-control" id="wishes" name="wishes" placeholder="Enter your wish here" rows="4" required></textarea>
             </div>
-            <button type="submit" class="btn btn-primary">Update Wishes</button>
+            <button type="submit">Update Wishes</button>
         </form>
     </div>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-
-<script>
-    var form = document.querySelector('form');
-    var submitButton = document.querySelector('button[type="submit"]');
-
-    form.addEventListener('submit', function (event) {
-        event.preventDefault(); 
-
-        var wishesText = document.getElementById('wishes').value;
-
-        var formData = new FormData();
-        formData.append('wishes', wishesText);
-
-        fetch('/update-wishes', {
-            method: 'POST',
-            body: formData
-        })
-        .then(function (response) {
-            if (response.ok) {
-                console.log('Wishes updated successfully.');
-            } else {
-                console.error('Error updating wishes.');
-            }
-        })
-        .catch(function (error) {
-            console.error('Network error:', error);
-        });
-        console.log('Form submitted');
-    });
-    console.log('Form submitted');
-</script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</body>
