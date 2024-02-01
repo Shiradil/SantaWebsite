@@ -23,14 +23,14 @@ type errorss struct {
 }
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/" {
-		w.WriteHeader(http.StatusNotFound)
-		ErrorHandler(w, r, http.StatusNotFound, http.StatusText(http.StatusNotFound))
-		return
-	}
 	if r.Method != "GET" {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		ErrorHandler(w, r, http.StatusMethodNotAllowed, http.StatusText(http.StatusMethodNotAllowed))
+		return
+	}
+	if r.URL.Path != "/" {
+		w.WriteHeader(http.StatusNotFound)
+		ErrorHandler(w, r, http.StatusNotFound, http.StatusText(http.StatusNotFound))
 		return
 	}
 	err := renderTemplate(w, "home.html", nil)
@@ -45,24 +45,29 @@ func volLoginHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		phone := r.FormValue("phone")
 		password := r.FormValue("password")
+		incMsg := "Wrong password or phone"
 
 		collection := db.Client.Database("SantaWeb").Collection("volunteers")
 		var volunteer Volunteer
 		err := collection.FindOne(context.Background(), bson.M{"phone": phone}).Decode(&volunteer)
 		if err != nil {
-			http.Error(w, "Invalid phone or password", http.StatusUnauthorized)
+			renderTemplate(w, "vollogin.html", incMsg)
 			return
 		}
 
 		err = bcrypt.CompareHashAndPassword([]byte(volunteer.Password), []byte(password))
 		if err != nil {
-			http.Error(w, "Invalid phone or password", http.StatusUnauthorized)
+			renderTemplate(w, "vollogin.html", incMsg)
 			return
 		}
 
 		http.Redirect(w, r, fmt.Sprintf("/vol/%s", volunteer.ID.Hex()), http.StatusSeeOther)
-	} else {
+	} else if r.Method == "GET" {
 		renderTemplate(w, "vollogin.html", nil)
+	} else {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		ErrorHandler(w, r, http.StatusMethodNotAllowed, http.StatusText(http.StatusMethodNotAllowed))
+		return
 	}
 }
 
@@ -100,8 +105,12 @@ func volRegHandler(w http.ResponseWriter, r *http.Request) {
 
 		insertedID := result.InsertedID.(primitive.ObjectID)
 		http.Redirect(w, r, fmt.Sprintf("/vol/%s", insertedID.Hex()), http.StatusSeeOther)
-	} else {
+	} else if r.Method == "GET" {
 		renderTemplate(w, "volreg.html", nil)
+	} else {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		ErrorHandler(w, r, http.StatusMethodNotAllowed, http.StatusText(http.StatusMethodNotAllowed))
+		return
 	}
 }
 
@@ -109,26 +118,29 @@ func chiLogHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		phone := r.FormValue("phone")
 		password := r.FormValue("password")
+		incMsg := "Wrong password or phone"
 
 		collection := db.Client.Database("SantaWeb").Collection("children")
 		var child Child
 		err := collection.FindOne(context.Background(), bson.M{"phone": phone}).Decode(&child)
 		if err != nil {
-			errorResponse := ErrorResponse{Status: "400", Message: "Некорректное JSON-сообщение"}
-			sendJSONResponse(w, errorResponse, http.StatusUnauthorized)
+			renderTemplate(w, "chilog.html", incMsg)
 			return
 		}
 
 		err = bcrypt.CompareHashAndPassword([]byte(child.Password), []byte(password))
 		if err != nil {
-			errorResponse := ErrorResponse{Status: "400", Message: "Некорректное JSON-сообщение"}
-			sendJSONResponse(w, errorResponse, http.StatusUnauthorized)
+			renderTemplate(w, "chilog.html", incMsg)
 			return
 		}
 
 		http.Redirect(w, r, fmt.Sprintf("/chil/%s", child.ID.Hex()), http.StatusSeeOther)
-	} else {
+	} else if r.Method == "GET" {
 		renderTemplate(w, "chilog.html", nil)
+	} else {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		ErrorHandler(w, r, http.StatusMethodNotAllowed, http.StatusText(http.StatusMethodNotAllowed))
+		return
 	}
 }
 
@@ -153,7 +165,7 @@ func chiRegHandler(w http.ResponseWriter, r *http.Request) {
 			Email:     email,
 			Phone:     phone,
 			Password:  string(hashedPassword),
-			Wish:      "",
+			Wish:      nil,
 			Volunteer: nil,
 		}
 
@@ -169,9 +181,9 @@ func chiRegHandler(w http.ResponseWriter, r *http.Request) {
 
 		insertedID := result.InsertedID.(primitive.ObjectID)
 
-		wishes := WishesData{
-			ChildID: insertedID,
-			Wishes:  "",
+		wishes := Wish{
+			Wishes: "",
+			Child:  &child,
 		}
 		_, err = collectionWishes.InsertOne(context.Background(), wishes)
 		if err != nil {
@@ -179,10 +191,13 @@ func chiRegHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		http.Redirect(w, r, fmt.Sprintf("/chil/%s", insertedID.Hex()), http.StatusSeeOther)
-	} else {
+	} else if r.Method == "GET" {
 		renderTemplate(w, "chireg.html", nil)
+	} else {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		ErrorHandler(w, r, http.StatusMethodNotAllowed, http.StatusText(http.StatusMethodNotAllowed))
+		return
 	}
-
 }
 
 func renderTemplate(w http.ResponseWriter, tmpl string, data interface{}) error {

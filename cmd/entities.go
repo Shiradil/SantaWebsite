@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"time"
-
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -23,18 +21,12 @@ type Child struct {
 	Email     string             `json:"email" bson:"email"`
 	Phone     string             `json:"phone" bson:"phone"`
 	Password  string             `json:"password" bson:"password"`
-	Wish      string             `json:"wish" bson:"wish"`
+	Wish      *Wish              `json:"wish,omitempty" bson:"wish,omitempty"`
 	Volunteer *Volunteer         `json:"volunteer,omitempty" bson:"volunteer,omitempty"`
 }
 
-type WishesData struct {
-	ID        primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
-	ChildID   primitive.ObjectID `json:"childId" bson:"childId"`
-	Wishes    string             `json:"wishes" bson:"wishes"`
-	CreatedAt time.Time          `json:"createdAt" bson:"createdAt"`
-}
-
-type ErrorResponse struct {
-	Status  string `json:"status"`
-	Message string `json:"message"`
+type Wish struct {
+	ID     primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
+	Wishes string             `json:"wishes" bson:"wishes"`
+	Child  *Child             `json:"child,omitempty" bson:"child,omitempty"`
 }
