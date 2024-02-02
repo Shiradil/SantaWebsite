@@ -18,20 +18,19 @@
 
     <div class="container">
         <h1>Children's Wish Lists</h1>
+        
         <div id="children-list">
-            <div class="child-wish mb-3">
-                <h2>Child's Name</h2>
-                <p>Wish: A toy car</p>
-                <button class="btn btn-primary gift-button">Choose to Gift</button>
+            <div class="child-wish mb-3 pb-2 border-bottom">
+                {{range .Children}}
+                <h3>{{.Name}} {{.Surname}}</h2>
+                <p>Wish:  {{if .Wish}}{{.Wish.Wishes}}{{else}}No wishes listed{{end}}</p>
+                {{else}}
+                <p>No children assigned</p>
+            {{end}}
+               
             </div>
 
-            <!-- Repeat the structure for each child -->
-            <!-- Example for another child -->
-            <div class="child-wish mb-3">
-                <h2>Another Child's Name</h2>
-                <p>Wish: A storybook</p>
-                <button class="btn btn-primary gift-button">Choose to Gift</button>
-            </div>
+         
 
         </div>
     </div>
