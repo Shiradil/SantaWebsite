@@ -9,39 +9,9 @@ import (
 	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo/options"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
 )
-
-func GetChildren(page int) ([]structs.Child, error) {
-	limit := 10
-	offset := 0
-
-	if page > 1 {
-		offset = (page - 1) * limit
-	}
-
-	collection := db.Client.Database("SantaWeb").Collection("children")
-
-	findOptions := options.Find().SetLimit(int64(limit)).SetSkip(int64(offset))
-	cursor, err := collection.Find(context.Background(), bson.D{}, findOptions)
-	if err != nil {
-		return nil, fmt.Errorf("error finding children: %v", err)
-	}
-	defer cursor.Close(context.Background())
-
-	var children []structs.Child
-	for cursor.Next(context.Background()) {
-		var child structs.Child
-		if err := cursor.Decode(&child); err != nil {
-			return nil, fmt.Errorf("error decoding children: %v", err)
-		}
-		children = append(children, child)
-	}
-
-	return children, nil
-}
 
 func ChiLogHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
@@ -94,8 +64,8 @@ func ChiRegHandler(w http.ResponseWriter, r *http.Request) {
 			Email:     email,
 			Phone:     phone,
 			Password:  string(hashedPassword),
-			Wish:      nil,
-			Volunteer: nil,
+			Wish:      &structs.Wish{},
+			Volunteer: &structs.Volunteer{},
 		}
 
 		collection := db.Client.Database("SantaWeb").Collection("children")

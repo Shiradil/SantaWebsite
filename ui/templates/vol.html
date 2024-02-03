@@ -22,7 +22,7 @@
         <div id="children-list">
             <div class="child-wish mb-3 pb-2 border-bottom">
                 {{range .Children}}
-                <h3>{{.Name}} {{.Surname}}</h2>
+                <h3>{{.Name}} {{.Surname}}</h3>
                 <p>Wish:  {{if .Wish}}{{.Wish.Wishes}}{{else}}No wishes listed{{end}}</p>
                 {{else}}
                 <p>No children assigned</p>

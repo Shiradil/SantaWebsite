@@ -17,8 +17,6 @@ func DbConnection() error {
 		return err
 	}
 
-	CreateIndexes()
-
 	err = Client.Ping(context.Background(), nil)
 	if err != nil {
 		return err
