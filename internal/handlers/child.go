@@ -11,6 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
+	"regexp"
 )
 
 func ChiLogHandler(w http.ResponseWriter, r *http.Request) {
@@ -118,34 +119,50 @@ func ChildPersonalPageHandler(w http.ResponseWriter, r *http.Request) {
 
 func UpdateWishesHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		w.WriteHeader(http.StatusInternalServerError)
+		ErrorHandler(w, r, http.StatusMethodNotAllowed, http.StatusText(http.StatusMethodNotAllowed))
 		return
 	}
+	wishesCollection := db.Client.Database("SantaWeb").Collection("wishes")
 
-	childID, err := GetChildIDFromSession(r)
+	err := r.ParseForm()
 	if err != nil {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
-
-	err = r.ParseForm()
-	if err != nil {
-		http.Error(w, "Error parsing form", http.StatusBadRequest)
+		w.WriteHeader(http.StatusBadRequest)
+		ErrorHandler(w, r, http.StatusBadRequest, http.StatusText(http.StatusBadRequest))
 		return
 	}
 	wishes := r.FormValue("wishes")
+	input := r.FormValue("childID")
+	childID, err := extractObjectID(input)
+	if err != nil {
+		fmt.Println("Error:", err)
+	} else {
+		fmt.Println("Extracted ObjectID:", childID)
+	}
+	fmt.Println("Child ID:", childID)
+	fmt.Println("wishes:", wishes)
 
-	wishesCollection := db.Client.Database("SantaWeb").Collection("wishes")
-
-	filter := bson.M{"childId": childID}
+	filter := bson.M{"childID": childID}
 	update := bson.M{"$set": bson.M{"wishes": wishes}}
 	_, err = wishesCollection.UpdateOne(context.Background(), filter, update)
 	if err != nil {
-		http.Error(w, "Error updating wishes", http.StatusInternalServerError)
+		w.WriteHeader(http.StatusInternalServerError)
+		ErrorHandler(w, r, http.StatusMethodNotAllowed, "Error updating wishes")
 		return
 	}
 
-	http.Redirect(w, r, "/path-to-child-page", http.StatusSeeOther)
+	http.Redirect(w, r, fmt.Sprintf("/chil/%s", childID), http.StatusSeeOther)
+}
+
+func extractObjectID(input string) (string, error) {
+	re := regexp.MustCompile(`ObjectID\("([a-fA-F0-9]+)"\)`)
+	matches := re.FindStringSubmatch(input)
+
+	if len(matches) < 2 {
+		return "", fmt.Errorf("no ObjectID found")
+	}
+
+	return matches[1], nil
 }
 
 func GetChildIDFromSession(r *http.Request) (primitive.ObjectID, error) {

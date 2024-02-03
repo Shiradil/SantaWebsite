@@ -98,6 +98,11 @@ func VolRegHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func VolunteerPersonalPageHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "GET" {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		ErrorHandler(w, r, http.StatusMethodNotAllowed, http.StatusText(http.StatusMethodNotAllowed))
+		return
+	}
 	vars := mux.Vars(r)
 	volunteerID := vars["id"]
 
