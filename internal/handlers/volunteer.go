@@ -103,7 +103,8 @@ func VolunteerPersonalPageHandler(w http.ResponseWriter, r *http.Request) {
 
 	volunteer, err := GetVolunteerByID(volunteerID)
 	if err != nil {
-		http.Error(w, "Volunteer not found", http.StatusNotFound)
+		w.WriteHeader(http.StatusNotFound)
+		ErrorHandler(w, r, http.StatusNotFound, "Volunteer not found")
 		return
 	}
 
@@ -113,9 +114,23 @@ func VolunteerPersonalPageHandler(w http.ResponseWriter, r *http.Request) {
 		page = 1
 	}
 
-	children, totalCount, err := GetChildren(page)
+	var sortDirection int
+	sortParam := r.URL.Query().Get("sort")
+	if sortParam == "asc" {
+		sortDirection = 1
+	} else {
+		sortDirection = -1
+	}
+
+	children, totalCount, err := GetChildren(page, sortDirection)
+	if err == fmt.Errorf("page does not exist") {
+		w.WriteHeader(http.StatusNotFound)
+		ErrorHandler(w, r, http.StatusNotFound, "Volunteer not found")
+		return
+	}
 	if err != nil {
-		http.Error(w, "Error retrieving children data", http.StatusInternalServerError)
+		w.WriteHeader(http.StatusInternalServerError)
+		ErrorHandler(w, r, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 		return
 	}
 
@@ -125,10 +140,12 @@ func VolunteerPersonalPageHandler(w http.ResponseWriter, r *http.Request) {
 		Volunteer  structs.Volunteer
 		Children   []structs.Child
 		Pagination PaginationData
+		Sorting    string
 	}{
 		Volunteer:  volunteer,
 		Children:   children,
 		Pagination: pagination,
+		Sorting:    sortParam,
 	}
 
 	RenderTemplate(w, "vol.html", data)
@@ -166,14 +183,18 @@ func CalculatePagination(page, totalCount int) PaginationData {
 	}
 }
 
-func GetChildren(page int) ([]structs.Child, int, error) {
+func GetChildren(page int, sortDirection int) ([]structs.Child, int, error) {
 	limit := 10
 	offset := (page - 1) * limit
 
 	collection := db.Client.Database("SantaWeb").Collection("children")
 	ctx := context.Background()
 
-	cursor, err := collection.Find(ctx, bson.D{}, options.Find().SetLimit(int64(limit)).SetSkip(int64(offset)))
+	// Определите параметры сортировки по имени
+	sort := bson.D{{Key: "name", Value: sortDirection}}
+
+	// Выполните запрос с сортировкой по имени
+	cursor, err := collection.Find(ctx, bson.D{}, options.Find().SetLimit(int64(limit)).SetSkip(int64(offset)).SetSort(sort))
 	if err != nil {
 		return nil, 0, fmt.Errorf("error finding children: %v", err)
 	}
@@ -188,10 +209,16 @@ func GetChildren(page int) ([]structs.Child, int, error) {
 		children = append(children, child)
 	}
 
-	totalCount, err := collection.CountDocuments(ctx, bson.D{})
+	// Получите общее количество документов без применения фильтра и сортировки
+	totalCount, err := collection.EstimatedDocumentCount(ctx)
 	if err != nil {
 		return nil, 0, fmt.Errorf("error getting total count of children: %v", err)
 	}
 
-	return children, int(totalCount), nil
+	totalPages := (int(totalCount) + limit - 1) / limit
+	if page > totalPages {
+		return nil, totalPages, fmt.Errorf("page does not exist")
+	}
+
+	return children, totalPages, nil
 }
