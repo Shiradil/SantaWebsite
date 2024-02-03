@@ -1,10 +1,7 @@
-// This is a placeholder function. In a real app, you would implement the actual logic.
 function chooseToGift(childId) {
     console.log("Gift chosen for child with ID:", childId);
-    // Here you would likely make an AJAX call to your backend
 }
 
-// Add event listeners to gift buttons
 document.addEventListener("DOMContentLoaded", function() {
     var giftButtons = document.querySelectorAll(".gift-button");
     giftButtons.forEach(function(button) {
@@ -14,11 +11,9 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     });
 });
-// Example JavaScript for client-side interactivity
 document.addEventListener("DOMContentLoaded", function() {
     var updateButton = document.querySelector("button[type='submit']");
     updateButton.addEventListener("click", function(event) {
-        // You can add validation or other interactivity here
         console.log("Wishes updated!");
     });
 });
@@ -26,7 +21,7 @@ document.addEventListener("DOMContentLoaded", function() {
 document.addEventListener('DOMContentLoaded', function() {
     var form = document.querySelector('form');
     form.addEventListener('submit', function(event) {
-        event.preventDefault(); // Prevent the default form submission
+        event.preventDefault();
 
         var wishes = document.getElementById('wishes').value;
         var data = {
@@ -35,10 +30,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         var jsonData = JSON.stringify(data);
 
-        console.log(jsonData); // For debugging
+        console.log(jsonData);
 
-        // Here you can send jsonData to your server
-        // Example using fetch API
         fetch('/update-wishes', {
             method: 'POST',
             headers: {
@@ -49,11 +42,9 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
             console.log('Success:', data);
-            // Handle success here (e.g., showing a success message)
         })
         .catch((error) => {
             console.error('Error:', error);
-            // Handle errors here
         });
     });
 });
@@ -88,7 +79,6 @@ function submitRegistration() {
             console.error('There has been a problem with your fetch operation:', error);
         });
 
-    // Предотвращаем отправку формы
     return false;
 }
 
@@ -96,15 +86,13 @@ document.addEventListener("DOMContentLoaded", function () {
     var form = document.getElementById("loginForm");
 
     form.addEventListener("submit", function (event) {
-        event.preventDefault(); // Предотвратить стандартное поведение формы
+        event.preventDefault();
 
-        // Получить данные формы
         var formData = {
             phone: document.getElementById("phone").value,
             password: document.getElementById("password").value,
         };
 
-        // Отправить POST-запрос на сервер
         fetch('/submit-volunteer-login', {
             method: 'POST',
             headers: {
@@ -120,11 +108,9 @@ document.addEventListener("DOMContentLoaded", function () {
             })
             .then(data => {
                 console.log(data);
-                // Обработка успешного ответа, если нужно
             })
             .catch(error => {
                 console.error('There has been a problem with your fetch operation:', error);
-                // Обработка ошибок
             });
     });
 });

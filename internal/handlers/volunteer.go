@@ -151,8 +151,6 @@ func VolunteerPersonalPageHandler(w http.ResponseWriter, r *http.Request) {
 	RenderTemplate(w, "vol.html", data)
 }
 
-// http://localhost:8080/vol/65bdf00b869485d29a4c66e0?page=2
-// http://localhost:8080/vol/ObjectID%28%2265bdf00b869485d29a4c66e0%22%29?page=1
 func GetVolunteerByID(volunteerID string) (structs.Volunteer, error) {
 	var volunteer structs.Volunteer
 
@@ -190,10 +188,8 @@ func GetChildren(page int, sortDirection int) ([]structs.Child, int, error) {
 	collection := db.Client.Database("SantaWeb").Collection("children")
 	ctx := context.Background()
 
-	// Определите параметры сортировки по имени
 	sort := bson.D{{Key: "name", Value: sortDirection}}
 
-	// Выполните запрос с сортировкой по имени
 	cursor, err := collection.Find(ctx, bson.D{}, options.Find().SetLimit(int64(limit)).SetSkip(int64(offset)).SetSort(sort))
 	if err != nil {
 		return nil, 0, fmt.Errorf("error finding children: %v", err)
@@ -209,7 +205,6 @@ func GetChildren(page int, sortDirection int) ([]structs.Child, int, error) {
 		children = append(children, child)
 	}
 
-	// Получите общее количество документов без применения фильтра и сортировки
 	totalCount, err := collection.EstimatedDocumentCount(ctx)
 	if err != nil {
 		return nil, 0, fmt.Errorf("error getting total count of children: %v", err)
