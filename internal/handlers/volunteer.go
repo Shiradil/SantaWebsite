@@ -196,10 +196,8 @@ func GetChildren(page int, sortDirection int, filter bson.D) ([]structs.Child, i
 	collection := db.Client.Database("SantaWeb").Collection("children")
 	ctx := context.Background()
 
-	// Определяем направление сортировки
 	sort := bson.D{{Key: "name", Value: sortDirection}}
 
-	// Применяем фильтр, если он есть
 	if len(filter) > 0 {
 		cursor, err := collection.Find(ctx, filter, options.Find().SetLimit(int64(limit)).SetSkip(int64(offset)).SetSort(sort))
 		if err != nil {
@@ -229,7 +227,6 @@ func GetChildren(page int, sortDirection int, filter bson.D) ([]structs.Child, i
 		return children, totalPages, nil
 	}
 
-	// Если фильтр не передан, просто получаем всех детей без фильтрации
 	cursor, err := collection.Find(ctx, bson.D{}, options.Find().SetLimit(int64(limit)).SetSkip(int64(offset)).SetSort(sort))
 	if err != nil {
 		return nil, 0, fmt.Errorf("error finding children: %v", err)
