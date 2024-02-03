@@ -26,7 +26,7 @@ type Child struct {
 }
 
 type Wish struct {
-	ID     primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
-	Wishes string             `json:"wishes" bson:"wishes"`
-	Child  *Child             `json:"child,omitempty" bson:"child,omitempty"`
+	ID      primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
+	Wishes  string             `json:"wishes" bson:"wishes"`
+	ChildID primitive.ObjectID `json:"childID,omitempty" bson:"childID,omitempty"`
 }

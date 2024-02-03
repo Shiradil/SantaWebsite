@@ -4,14 +4,14 @@ import (
 	"SantaWeb/internal/db"
 	"SantaWeb/structs"
 	"context"
-	"errors"
 	"fmt"
+	"net/http"
+	"regexp"
+
 	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
-	"net/http"
-	"regexp"
 )
 
 func ChiLogHandler(w http.ResponseWriter, r *http.Request) {
@@ -82,8 +82,8 @@ func ChiRegHandler(w http.ResponseWriter, r *http.Request) {
 		insertedID := result.InsertedID.(primitive.ObjectID)
 
 		wishes := structs.Wish{
-			Wishes: "",
-			Child:  &child,
+			Wishes:  "",
+			ChildID: insertedID,
 		}
 		_, err = collectionWishes.InsertOne(context.Background(), wishes)
 		if err != nil {
@@ -116,8 +116,50 @@ func ChildPersonalPageHandler(w http.ResponseWriter, r *http.Request) {
 
 	RenderTemplate(w, "chil.html", child)
 }
+func extractObjectID(input string) (primitive.ObjectID, error) {
+	re := regexp.MustCompile(`ObjectID\("([a-fA-F0-9]+)"\)`)
+	matches := re.FindStringSubmatch(input)
+
+	if len(matches) < 2 {
+		return primitive.NilObjectID, fmt.Errorf("no ObjectID found")
+	}
+
+	return primitive.ObjectIDFromHex(matches[1])
+}
 
 func UpdateWishesHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
+		return
+	}
+
+	wishesCollection := db.Client.Database("SantaWeb").Collection("wishes")
+
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		return
+	}
+
+	wishes := r.FormValue("wishes")
+	input := r.FormValue("childID")
+	childID, err := extractObjectID(input)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error extracting ObjectID: %v", err), http.StatusBadRequest)
+		return
+	}
+
+	filter := bson.M{"childID": childID} 
+	update := bson.M{"$set": bson.M{"wishes": wishes}}
+
+	if _, err := wishesCollection.UpdateOne(context.Background(), filter, update); err != nil {
+		http.Error(w, "Error updating wishes", http.StatusInternalServerError)
+		return
+	}
+
+	http.Redirect(w, r, fmt.Sprintf("/chil/%s", childID.Hex()), http.StatusSeeOther)
+}
+
+/*func UpdateWishesHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		w.WriteHeader(http.StatusInternalServerError)
 		ErrorHandler(w, r, http.StatusMethodNotAllowed, http.StatusText(http.StatusMethodNotAllowed))
@@ -142,7 +184,7 @@ func UpdateWishesHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Child ID:", childID)
 	fmt.Println("wishes:", wishes)
 
-	filter := bson.M{"childID": childID}
+	filter := bson.M{"childID": input}
 	update := bson.M{"$set": bson.M{"wishes": wishes}}
 	_, err = wishesCollection.UpdateOne(context.Background(), filter, update)
 	if err != nil {
@@ -163,9 +205,9 @@ func extractObjectID(input string) (string, error) {
 	}
 
 	return matches[1], nil
-}
+}*/
 
-func GetChildIDFromSession(r *http.Request) (primitive.ObjectID, error) {
+/*func GetChildIDFromSession(r *http.Request) (primitive.ObjectID, error) {
 	session, err := store.Get(r, "session-name")
 	if err != nil {
 		return primitive.NilObjectID, err
@@ -183,3 +225,4 @@ func GetChildIDFromSession(r *http.Request) (primitive.ObjectID, error) {
 
 	return objID, nil
 }
+*/
