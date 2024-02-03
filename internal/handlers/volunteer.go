@@ -14,6 +14,16 @@ import (
 	"strconv"
 )
 
+const pageSize = 10
+
+type PaginationData struct {
+	CurrentPage int
+	PrevPage    int
+	NextPage    int
+	TotalPages  int
+	Pages       []int
+}
+
 func VolLoginHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		phone := r.FormValue("phone")
@@ -91,62 +101,97 @@ func VolunteerPersonalPageHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	volunteerID := vars["id"]
 
-	var volunteer structs.Volunteer
-	collection := db.Client.Database("SantaWeb").Collection("volunteers")
-	objID, _ := primitive.ObjectIDFromHex(volunteerID)
-
-	err := collection.FindOne(context.Background(), bson.M{"_id": objID}).Decode(&volunteer)
+	volunteer, err := GetVolunteerByID(volunteerID)
 	if err != nil {
 		http.Error(w, "Volunteer not found", http.StatusNotFound)
 		return
 	}
 
-	page := r.URL.Query().Get("page")
-	var p int
-	if page == "" {
-		p = 0
-	} else {
-		p, _ = strconv.Atoi(page)
+	pageStr := r.URL.Query().Get("page")
+	page, err := strconv.Atoi(pageStr)
+	if err != nil || page < 1 {
+		page = 1
 	}
 
-	children, _ := GetChildren(p)
+	children, totalCount, err := GetChildren(page)
+	if err != nil {
+		http.Error(w, "Error retrieving children data", http.StatusInternalServerError)
+		return
+	}
+
+	pagination := CalculatePagination(page, totalCount)
 
 	data := struct {
-		Volunteer structs.Volunteer
-		Children  []structs.Child
+		Volunteer  structs.Volunteer
+		Children   []structs.Child
+		Pagination PaginationData
 	}{
-		Volunteer: volunteer,
-		Children:  children,
+		Volunteer:  volunteer,
+		Children:   children,
+		Pagination: pagination,
 	}
 
 	RenderTemplate(w, "vol.html", data)
 }
 
-func GetChildren(page int) ([]structs.Child, error) {
-	limit := 10
-	offset := 0
+// http://localhost:8080/vol/65bdf00b869485d29a4c66e0?page=2
+// http://localhost:8080/vol/ObjectID%28%2265bdf00b869485d29a4c66e0%22%29?page=1
+func GetVolunteerByID(volunteerID string) (structs.Volunteer, error) {
+	var volunteer structs.Volunteer
 
-	if page > 1 {
-		offset = (page - 1) * limit
+	objID, err := primitive.ObjectIDFromHex(volunteerID)
+	if err != nil {
+		return volunteer, fmt.Errorf("invalid volunteer ID: %v", err)
 	}
+
+	collection := db.Client.Database("SantaWeb").Collection("volunteers")
+	err = collection.FindOne(context.Background(), bson.M{"_id": objID}).Decode(&volunteer)
+	if err != nil {
+		return volunteer, fmt.Errorf("error finding volunteer: %v", err)
+	}
+
+	return volunteer, nil
+}
+
+func CalculatePagination(page, totalCount int) PaginationData {
+	totalPages := (totalCount + pageSize - 1) / pageSize
+	prevPage := page - 1
+	nextPage := page + 1
+
+	return PaginationData{
+		CurrentPage: page,
+		PrevPage:    prevPage,
+		NextPage:    nextPage,
+		TotalPages:  totalPages,
+	}
+}
+
+func GetChildren(page int) ([]structs.Child, int, error) {
+	limit := 10
+	offset := (page - 1) * limit
 
 	collection := db.Client.Database("SantaWeb").Collection("children")
+	ctx := context.Background()
 
-	findOptions := options.Find().SetLimit(int64(limit)).SetSkip(int64(offset))
-	cursor, err := collection.Find(context.Background(), bson.D{}, findOptions)
+	cursor, err := collection.Find(ctx, bson.D{}, options.Find().SetLimit(int64(limit)).SetSkip(int64(offset)))
 	if err != nil {
-		return nil, fmt.Errorf("error finding children: %v", err)
+		return nil, 0, fmt.Errorf("error finding children: %v", err)
 	}
-	defer cursor.Close(context.Background())
+	defer cursor.Close(ctx)
 
 	var children []structs.Child
-	for cursor.Next(context.Background()) {
+	for cursor.Next(ctx) {
 		var child structs.Child
 		if err := cursor.Decode(&child); err != nil {
-			return nil, fmt.Errorf("error decoding children: %v", err)
+			return nil, 0, fmt.Errorf("error decoding children: %v", err)
 		}
 		children = append(children, child)
 	}
 
-	return children, nil
+	totalCount, err := collection.CountDocuments(ctx, bson.D{})
+	if err != nil {
+		return nil, 0, fmt.Errorf("error getting total count of children: %v", err)
+	}
+
+	return children, int(totalCount), nil
 }

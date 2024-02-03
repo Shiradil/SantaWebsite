@@ -27,10 +27,19 @@
                 {{else}}
                 <p>No children assigned</p>
             {{end}}
-               
             </div>
 
-         
+            {{if .Pagination.PrevPage}}
+            <a href="/vol/{{.Volunteer.ID.Hex}}?page={{.Pagination.PrevPage}}">Previous</a>
+            {{end}}
+
+            {{if .Pagination.NextPage}}
+            <a href="/vol/{{.Volunteer.ID.Hex}}?page={{.Pagination.NextPage}}">Next</a>
+            {{end}}
+
+            {{range .Pagination.Pages}}
+            <a href="/vol/{{.Volunteer.ID.Hex}}?page={{.Page}}">{{.Page}}</a>
+            {{end}}
 
         </div>
     </div>
