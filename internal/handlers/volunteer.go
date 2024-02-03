@@ -122,7 +122,15 @@ func VolunteerPersonalPageHandler(w http.ResponseWriter, r *http.Request) {
 		sortDirection = -1
 	}
 
-	children, totalCount, err := GetChildren(page, sortDirection)
+	var filter bson.D
+	filterParam := r.URL.Query().Get("filter")
+	if filterParam == "wishes" {
+		filter = bson.D{{Key: "wish.wishes", Value: bson.D{{Key: "$ne", Value: ""}}}}
+	} else {
+		filter = bson.D{}
+	}
+
+	children, totalCount, err := GetChildren(page, sortDirection, filter)
 	if err == fmt.Errorf("page does not exist") {
 		w.WriteHeader(http.StatusNotFound)
 		ErrorHandler(w, r, http.StatusNotFound, "Volunteer not found")
@@ -181,15 +189,47 @@ func CalculatePagination(page, totalCount int) PaginationData {
 	}
 }
 
-func GetChildren(page int, sortDirection int) ([]structs.Child, int, error) {
+func GetChildren(page int, sortDirection int, filter bson.D) ([]structs.Child, int, error) {
 	limit := 10
 	offset := (page - 1) * limit
 
 	collection := db.Client.Database("SantaWeb").Collection("children")
 	ctx := context.Background()
 
+	// Определяем направление сортировки
 	sort := bson.D{{Key: "name", Value: sortDirection}}
 
+	// Применяем фильтр, если он есть
+	if len(filter) > 0 {
+		cursor, err := collection.Find(ctx, filter, options.Find().SetLimit(int64(limit)).SetSkip(int64(offset)).SetSort(sort))
+		if err != nil {
+			return nil, 0, fmt.Errorf("error finding children: %v", err)
+		}
+		defer cursor.Close(ctx)
+
+		var children []structs.Child
+		for cursor.Next(ctx) {
+			var child structs.Child
+			if err := cursor.Decode(&child); err != nil {
+				return nil, 0, fmt.Errorf("error decoding children: %v", err)
+			}
+			children = append(children, child)
+		}
+
+		totalCount, err := collection.CountDocuments(ctx, filter)
+		if err != nil {
+			return nil, 0, fmt.Errorf("error getting total count of children: %v", err)
+		}
+
+		totalPages := (int(totalCount) + limit - 1) / limit
+		if page > totalPages {
+			return nil, totalPages, fmt.Errorf("page does not exist")
+		}
+
+		return children, totalPages, nil
+	}
+
+	// Если фильтр не передан, просто получаем всех детей без фильтрации
 	cursor, err := collection.Find(ctx, bson.D{}, options.Find().SetLimit(int64(limit)).SetSkip(int64(offset)).SetSort(sort))
 	if err != nil {
 		return nil, 0, fmt.Errorf("error finding children: %v", err)
@@ -205,7 +245,7 @@ func GetChildren(page int, sortDirection int) ([]structs.Child, int, error) {
 		children = append(children, child)
 	}
 
-	totalCount, err := collection.EstimatedDocumentCount(ctx)
+	totalCount, err := collection.CountDocuments(ctx, bson.D{})
 	if err != nil {
 		return nil, 0, fmt.Errorf("error getting total count of children: %v", err)
 	}
