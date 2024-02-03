@@ -5,6 +5,7 @@ Website of gifts for orphans for the new year. Everyone can become Santa for an 
 1. Adilzhan Shirbayev
 2. Nargiz Skakova
 3. Baurzhan Saliyev
+4. Ernur Garifullin
 
 ## Instructions to run (with docker)
 1. ```cd SantaWebsite```
