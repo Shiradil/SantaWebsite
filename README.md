@@ -6,7 +6,12 @@ Website of gifts for orphans for the new year. Everyone can become Santa for an 
 2. Nargiz Skakova
 3. Baurzhan Saliyev
 
-## Instructions to run
+## Instructions to run (with docker)
+1. ```cd SantaWebsite```
+2. ```docker build -t santaweb .```
+3. ```docker run -dp 8080:8080 santaweb```
+
+## Instructions to run (without docker)
 1. To run server
 ```console
 go run app.go
