@@ -65,6 +65,7 @@ func VolRegHandler(w http.ResponseWriter, r *http.Request) {
 		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 		if err != nil {
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			log.Error(err.Error())
 			return
 		}
 
@@ -83,6 +84,7 @@ func VolRegHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			ErrorHandler(w, r, http.StatusMethodNotAllowed, http.StatusText(http.StatusMethodNotAllowed))
+			log.Error(err.Error())
 			return
 		}
 
@@ -110,6 +112,7 @@ func VolunteerPersonalPageHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		ErrorHandler(w, r, http.StatusNotFound, "Volunteer not found")
+		log.Error(err.Error())
 		return
 	}
 

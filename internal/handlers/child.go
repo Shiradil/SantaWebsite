@@ -25,12 +25,14 @@ func ChiLogHandler(w http.ResponseWriter, r *http.Request) {
 		err := collection.FindOne(context.Background(), bson.M{"phone": phone}).Decode(&child)
 		if err != nil {
 			RenderTemplate(w, "chilog.html", incMsg)
+			log.Error(err.Error())
 			return
 		}
 
 		err = bcrypt.CompareHashAndPassword([]byte(child.Password), []byte(password))
 		if err != nil {
 			RenderTemplate(w, "chilog.html", incMsg)
+			log.Error(err.Error())
 			return
 		}
 
@@ -56,6 +58,7 @@ func ChiRegHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			ErrorHandler(w, r, http.StatusMethodNotAllowed, http.StatusText(http.StatusMethodNotAllowed))
+			log.Error(err.Error())
 			return
 		}
 
@@ -76,6 +79,7 @@ func ChiRegHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			ErrorHandler(w, r, http.StatusMethodNotAllowed, http.StatusText(http.StatusMethodNotAllowed))
+			log.Error(err.Error())
 			return
 		}
 
@@ -88,6 +92,7 @@ func ChiRegHandler(w http.ResponseWriter, r *http.Request) {
 		_, err = collectionWishes.InsertOne(context.Background(), wishes)
 		if err != nil {
 			http.Error(w, "Error creating wish", http.StatusInternalServerError)
+			log.Error(err.Error())
 			return
 		}
 		http.Redirect(w, r, fmt.Sprintf("/chil/%s", insertedID.Hex()), http.StatusSeeOther)
@@ -111,6 +116,7 @@ func ChildPersonalPageHandler(w http.ResponseWriter, r *http.Request) {
 	err := collection.FindOne(context.Background(), bson.M{"_id": objID}).Decode(&child)
 	if err != nil {
 		http.Error(w, "Child not found", http.StatusNotFound)
+		log.Error(err.Error())
 		return
 	}
 
@@ -137,6 +143,7 @@ func UpdateWishesHandler(w http.ResponseWriter, r *http.Request) {
 
 	if err := r.ParseForm(); err != nil {
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		log.Error(err.Error())
 		return
 	}
 
@@ -145,14 +152,16 @@ func UpdateWishesHandler(w http.ResponseWriter, r *http.Request) {
 	childID, err := extractObjectID(input)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error extracting ObjectID: %v", err), http.StatusBadRequest)
+		log.Error(err.Error())
 		return
 	}
 
-	filter := bson.M{"childID": childID} 
+	filter := bson.M{"childID": childID}
 	update := bson.M{"$set": bson.M{"wishes": wishes}}
 
 	if _, err := wishesCollection.UpdateOne(context.Background(), filter, update); err != nil {
 		http.Error(w, "Error updating wishes", http.StatusInternalServerError)
+		log.Error(err.Error())
 		return
 	}
 
