@@ -4,9 +4,23 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"golang.org/x/time/rate"
 )
 
+var limiter = rate.NewLimiter(5, 10)
+
+func RateLimitMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if !limiter.Allow() {
+			http.Error(w, "Слишком много запросов", http.StatusTooManyRequests)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
 func SetupRoutes(router *mux.Router) {
+	router.Use(RateLimitMiddleware)
 	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("ui/static"))))
 
 	router.HandleFunc("/", HomeHandler)
