@@ -17,6 +17,7 @@ func ErrorHandler(w http.ResponseWriter, r *http.Request, errCode int, msg strin
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, strconv.Itoa(http.StatusInternalServerError)+" "+http.StatusText(http.StatusInternalServerError))
+		log.Error(err.Error())
 		return
 	}
 	Errors := errorss{
