@@ -30,6 +30,8 @@ func SetupRoutes(router *mux.Router) {
 	router.HandleFunc("/volreg", VolRegHandler)
 	router.HandleFunc("/chilog", ChiLogHandler)
 	router.HandleFunc("/chireg", ChiRegHandler)
+	router.HandleFunc("/admin-page", AdminPageHandler)
+	router.HandleFunc("/send-mail", MailingHandler)
 
 	router.NotFoundHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ErrorHandler(w, r, http.StatusNotFound, http.StatusText(http.StatusNotFound))
