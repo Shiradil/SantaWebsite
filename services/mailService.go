@@ -7,12 +7,13 @@ import (
 	gomail "gopkg.in/mail.v2"
 )
 
-func SendMail(to, message, title string) {
+func SendMail(to, message string) {
 	from := "garifullin.ernur@mail.ru"
 	m := gomail.NewMessage()
 	m.SetHeader("From", from)
 	m.SetHeader("To", to)
-	m.SetHeader("Subject", title)
+	m.SetHeader("Subject", "Santa web"+
+		"")
 
 	m.SetBody("text/plain", message)
 
