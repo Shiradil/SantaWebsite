@@ -25,3 +25,44 @@
 {"level":"info","msg":"Starting server on port :8080...\n","time":"2024-03-02T02:22:22+06:00"}
 {"level":"info","msg":"Starting server on port :8080...\n","time":"2024-03-02T03:02:57+06:00"}
 {"level":"info","msg":"Starting server on port :8080...\n","time":"2024-03-02T03:37:51+06:00"}
+{"level":"info","msg":"Starting server on port :8080...\n","time":"2024-03-02T12:57:11+06:00"}
+{"level":"info","msg":"Starting server on http://localhost::8080\n","time":"2024-03-02T12:57:59+06:00"}
+{"level":"info","msg":"Starting server on http://localhost::8080/\n","time":"2024-03-02T12:58:12+06:00"}
+{"level":"info","msg":"Starting server on http://localhost::8080/\n","time":"2024-03-02T13:01:31+06:00"}
+{"level":"info","msg":"Starting server on http://localhost::8080/\n","time":"2024-03-02T13:21:59+06:00"}
+{"level":"error","msg":"Too Many Requests","time":"2024-03-02T13:22:07+06:00"}
+{"level":"error","msg":"Too Many Requests","time":"2024-03-02T13:22:10+06:00"}
+{"level":"error","msg":"Too Many Requests","time":"2024-03-02T13:22:10+06:00"}
+{"level":"error","msg":"Too Many Requests","time":"2024-03-02T13:22:11+06:00"}
+{"level":"error","msg":"Too Many Requests","time":"2024-03-02T13:22:11+06:00"}
+{"level":"error","msg":"Too Many Requests","time":"2024-03-02T13:22:11+06:00"}
+{"level":"error","msg":"Too Many Requests","time":"2024-03-02T13:22:12+06:00"}
+{"level":"error","msg":"Too Many Requests","time":"2024-03-02T13:22:12+06:00"}
+{"level":"error","msg":"Too Many Requests","time":"2024-03-02T13:22:12+06:00"}
+{"level":"error","msg":"Too Many Requests","time":"2024-03-02T13:22:13+06:00"}
+{"level":"error","msg":"Too Many Requests","time":"2024-03-02T13:22:13+06:00"}
+{"level":"error","msg":"Too Many Requests","time":"2024-03-02T13:22:13+06:00"}
+{"level":"error","msg":"Too Many Requests","time":"2024-03-02T13:22:14+06:00"}
+{"level":"error","msg":"Too Many Requests","time":"2024-03-02T13:23:45+06:00"}
+{"level":"error","msg":"Too Many Requests","time":"2024-03-02T13:23:45+06:00"}
+{"level":"error","msg":"Too Many Requests","time":"2024-03-02T13:23:46+06:00"}
+{"level":"error","msg":"Too Many Requests","time":"2024-03-02T13:23:46+06:00"}
+{"level":"info","msg":"Starting server on http://localhost::8080/\n","time":"2024-03-02T13:23:53+06:00"}
+{"level":"error","msg":"Too Many Requests","time":"2024-03-02T13:24:19+06:00"}
+{"level":"error","msg":"Too Many Requests","time":"2024-03-02T13:24:19+06:00"}
+{"level":"error","msg":"Too Many Requests","time":"2024-03-02T13:26:00+06:00"}
+{"level":"error","msg":"Too Many Requests","time":"2024-03-02T13:26:02+06:00"}
+{"level":"error","msg":"Too Many Requests","time":"2024-03-02T13:26:02+06:00"}
+{"level":"error","msg":"Too Many Requests","time":"2024-03-02T13:26:02+06:00"}
+{"level":"error","msg":"Too Many Requests","time":"2024-03-02T13:26:04+06:00"}
+{"level":"error","msg":"Too Many Requests","time":"2024-03-02T13:26:04+06:00"}
+{"level":"error","msg":"Too Many Requests","time":"2024-03-02T13:26:05+06:00"}
+{"level":"error","msg":"Too Many Requests","time":"2024-03-02T13:26:06+06:00"}
+{"level":"error","msg":"Too Many Requests","time":"2024-03-02T13:26:06+06:00"}
+{"level":"error","msg":"Too Many Requests","time":"2024-03-02T13:26:07+06:00"}
+{"level":"error","msg":"Too Many Requests","time":"2024-03-02T13:26:07+06:00"}
+{"level":"error","msg":"Too Many Requests","time":"2024-03-02T13:26:07+06:00"}
+{"level":"error","msg":"Too Many Requests","time":"2024-03-02T13:26:10+06:00"}
+{"level":"error","msg":"Too Many Requests","time":"2024-03-02T13:26:11+06:00"}
+{"level":"error","msg":"Too Many Requests","time":"2024-03-02T13:26:12+06:00"}
+{"level":"error","msg":"Too Many Requests","time":"2024-03-02T13:26:12+06:00"}

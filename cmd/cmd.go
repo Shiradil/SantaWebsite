@@ -29,8 +29,7 @@ func main() {
 
 	port := ":8080"
 
-	log.Infof("Starting server on port %s...\n", port)
-
-	fmt.Printf("Starting server on port %s...\n", port)
+	log.Infof("Starting server on http://localhost:%s/\n", port)
+	fmt.Printf("Starting server on http://localhost%s/\n", port)
 	log.Fatal(http.ListenAndServe(port, router))
 }

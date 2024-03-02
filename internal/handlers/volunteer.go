@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"SantaWeb/internal/db"
-	"SantaWeb/structs"
+	"SantaWeb/models"
 	"context"
 	"fmt"
 	"github.com/gorilla/mux"
@@ -31,7 +31,7 @@ func VolLoginHandler(w http.ResponseWriter, r *http.Request) {
 		incMsg := "Wrong password or phone"
 
 		collection := db.Client.Database("SantaWeb").Collection("volunteers")
-		var volunteer structs.Volunteer
+		var volunteer models.Volunteer
 		err := collection.FindOne(context.Background(), bson.M{"phone": phone}).Decode(&volunteer)
 		if err != nil {
 			RenderTemplate(w, "vollogin.html", incMsg)
@@ -69,13 +69,13 @@ func VolRegHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		volunteer := structs.Volunteer{
+		volunteer := models.Volunteer{
 			Name:     firstName,
 			Surname:  lastName,
 			Email:    email,
 			Phone:    phone,
 			Password: string(hashedPassword),
-			Child:    &structs.Child{},
+			Child:    &models.Child{},
 		}
 
 		collection := db.Client.Database("SantaWeb").Collection("volunteers")
@@ -153,8 +153,8 @@ func VolunteerPersonalPageHandler(w http.ResponseWriter, r *http.Request) {
 	pagination := CalculatePagination(page, totalCount)
 
 	data := struct {
-		Volunteer  structs.Volunteer
-		Children   []structs.Child
+		Volunteer  models.Volunteer
+		Children   []models.Child
 		Pagination PaginationData
 		Sorting    string
 	}{
@@ -167,8 +167,8 @@ func VolunteerPersonalPageHandler(w http.ResponseWriter, r *http.Request) {
 	RenderTemplate(w, "vol.html", data)
 }
 
-func GetVolunteerByID(volunteerID string) (structs.Volunteer, error) {
-	var volunteer structs.Volunteer
+func GetVolunteerByID(volunteerID string) (models.Volunteer, error) {
+	var volunteer models.Volunteer
 
 	objID, err := primitive.ObjectIDFromHex(volunteerID)
 	if err != nil {
@@ -197,7 +197,7 @@ func CalculatePagination(page, totalCount int) PaginationData {
 	}
 }
 
-func GetChildren(page int, sortDirection int, filter bson.D) ([]structs.Child, int, error) {
+func GetChildren(page int, sortDirection int, filter bson.D) ([]models.Child, int, error) {
 	limit := 10
 	offset := (page - 1) * limit
 
@@ -213,9 +213,9 @@ func GetChildren(page int, sortDirection int, filter bson.D) ([]structs.Child, i
 		}
 		defer cursor.Close(ctx)
 
-		var children []structs.Child
+		var children []models.Child
 		for cursor.Next(ctx) {
-			var child structs.Child
+			var child models.Child
 			if err := cursor.Decode(&child); err != nil {
 				return nil, 0, fmt.Errorf("error decoding children: %v", err)
 			}
@@ -241,9 +241,9 @@ func GetChildren(page int, sortDirection int, filter bson.D) ([]structs.Child, i
 	}
 	defer cursor.Close(ctx)
 
-	var children []structs.Child
+	var children []models.Child
 	for cursor.Next(ctx) {
-		var child structs.Child
+		var child models.Child
 		if err := cursor.Decode(&child); err != nil {
 			return nil, 0, fmt.Errorf("error decoding children: %v", err)
 		}

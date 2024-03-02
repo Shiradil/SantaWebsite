@@ -2,12 +2,11 @@ package handlers
 
 import (
 	"SantaWeb/internal/db"
-	"SantaWeb/structs"
+	"SantaWeb/models"
 	"context"
 	"fmt"
 	"net/http"
 	"regexp"
-
 
 	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/bson"
@@ -22,7 +21,7 @@ func ChiLogHandler(w http.ResponseWriter, r *http.Request) {
 		incMsg := "Wrong password or phone"
 
 		collection := db.Client.Database("SantaWeb").Collection("children")
-		var child structs.Child
+		var child models.Child
 		err := collection.FindOne(context.Background(), bson.M{"phone": phone}).Decode(&child)
 		if err != nil {
 			RenderTemplate(w, "chilog.html", incMsg)
@@ -63,14 +62,14 @@ func ChiRegHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		child := structs.Child{
+		child := models.Child{
 			Name:      firstName,
 			Surname:   lastName,
 			Email:     email,
 			Phone:     phone,
 			Password:  string(hashedPassword),
-			Wish:      &structs.Wish{},
-			Volunteer: &structs.Volunteer{},
+			Wish:      &models.Wish{},
+			Volunteer: &models.Volunteer{},
 		}
 
 		collection := db.Client.Database("SantaWeb").Collection("children")
@@ -86,7 +85,7 @@ func ChiRegHandler(w http.ResponseWriter, r *http.Request) {
 
 		insertedID := result.InsertedID.(primitive.ObjectID)
 
-		wishes := structs.Wish{
+		wishes := models.Wish{
 			Wishes:  "",
 			ChildID: insertedID,
 		}
@@ -110,7 +109,7 @@ func ChildPersonalPageHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	childID := vars["id"]
 
-	var child structs.Child
+	var child models.Child
 	collection := db.Client.Database("SantaWeb").Collection("children")
 	objID, _ := primitive.ObjectIDFromHex(childID)
 

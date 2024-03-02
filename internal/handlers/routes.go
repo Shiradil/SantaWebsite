@@ -12,7 +12,9 @@ var limiter = rate.NewLimiter(5, 10)
 func RateLimitMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if !limiter.Allow() {
-			http.Error(w, "Слишком много запросов", http.StatusTooManyRequests)
+			w.WriteHeader(http.StatusTooManyRequests)
+			ErrorHandler(w, r, http.StatusTooManyRequests, http.StatusText(http.StatusTooManyRequests))
+			log.Error(http.StatusText(http.StatusTooManyRequests))
 			return
 		}
 		next.ServeHTTP(w, r)
