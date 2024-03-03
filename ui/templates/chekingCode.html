@@ -9,7 +9,7 @@
 <body>
     <div class="container">
         <h1>Volunteer confirm</h1>
-        <form action="/confirm/{{.Volunteer.ID.Hex}}" method="post">
+        <form action="/confirm/{{ .Volunteer.ID.Hex }}" method="post">
             <label for="confirmationCode">Confirmation Code:</label>
             <input type="int" id="confirmationCode" name="confirmationCode" required>
             

@@ -112,3 +112,14 @@
 {"level":"error","msg":"template: chekingCode.html:12:43: executing \"chekingCode.html\" at \u003c.Volunteer.ID.Hex\u003e: can't evaluate field Volunteer in type string","time":"2024-03-03T15:58:11+06:00"}
 {"level":"error","msg":"invalid volunteer ID: the provided hex string is not a valid ObjectID","time":"2024-03-03T15:58:34+06:00"}
 {"level":"error","msg":"template: chekingCode.html:12:43: executing \"chekingCode.html\" at \u003c.Volunteer.ID.Hex\u003e: can't evaluate field Volunteer in type string","time":"2024-03-03T15:58:55+06:00"}
+{"level":"info","msg":"Starting server on http://localhost::8080/\n","time":"2024-03-03T16:09:01+05:00"}
+{"level":"error","msg":"template: chekingCode.html:12:43: executing \"chekingCode.html\" at \u003c.Volunteer.ID.Hex\u003e: can't evaluate field Volunteer in type string","time":"2024-03-03T16:20:45+05:00"}
+{"level":"error","msg":"template: chekingCode.html:12:43: executing \"chekingCode.html\" at \u003c.volunteer.ID.Hex\u003e: can't evaluate field volunteer in type string","time":"2024-03-03T16:21:35+05:00"}
+{"level":"error","msg":"template: chekingCode.html:12:43: executing \"chekingCode.html\" at \u003c.volunteer.ID.Hex\u003e: can't evaluate field volunteer in type string","time":"2024-03-03T16:21:37+05:00"}
+{"level":"error","msg":"template: chekingCode.html:12:43: executing \"chekingCode.html\" at \u003c.volunteer.ID.Hex\u003e: can't evaluate field volunteer in type string","time":"2024-03-03T16:21:37+05:00"}
+{"level":"error","msg":"template: chekingCode.html:12:43: executing \"chekingCode.html\" at \u003c.volunteer.ID.Hex\u003e: can't evaluate field volunteer in type string","time":"2024-03-03T16:21:38+05:00"}
+{"level":"error","msg":"template: chekingCode.html:12:43: executing \"chekingCode.html\" at \u003c.volunteer.ID.Hex\u003e: can't evaluate field volunteer in type string","time":"2024-03-03T16:21:38+05:00"}
+{"level":"error","msg":"template: chekingCode.html:12:44: executing \"chekingCode.html\" at \u003c.Volunteer.ID.Hex\u003e: can't evaluate field Volunteer in type string","time":"2024-03-03T16:29:29+05:00"}
+{"level":"info","msg":"Starting server on http://localhost::8080/\n","time":"2024-03-03T16:30:47+05:00"}
+{"level":"info","msg":"Starting server on http://localhost::8080/\n","time":"2024-03-03T16:31:41+05:00"}
+{"level":"error","msg":"write exception: write errors: [E11000 duplicate key error collection: SantaWeb.volunteers index: phone_1 dup key: { phone: \"qwer\" }]","time":"2024-03-03T16:32:58+05:00"}

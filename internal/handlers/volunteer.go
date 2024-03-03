@@ -283,7 +283,7 @@ func SendMail(to string) string {
 	from := "220680@astanait.edu.kz"
 
 	rand.Seed(time.Now().UnixNano())
-	randomNumber := rand.Intn(900000) + 100000 
+	randomNumber := rand.Intn(900000) + 100000
 	code := randomNumber
 
 	message := fmt.Sprintf("Ваш код: %d", randomNumber)
@@ -320,10 +320,14 @@ func ConfirmHandler(w http.ResponseWriter, r *http.Request) {
 		log.Error(err.Error())
 		return
 	}
-	RenderTemplate(w, "chekingCode.html", "d")
+	data := struct {
+		Volunteer models.Volunteer
+	}{
+		Volunteer: volunteer,
+	}
+	RenderTemplate(w, "chekingCode.html", data)
 
 	code := r.FormValue("confirmationCode")
-	
 
 	if volunteer.ConfirmCode == code {
 		volunteer.IsConfirmed = true
