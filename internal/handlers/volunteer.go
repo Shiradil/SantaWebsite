@@ -14,6 +14,7 @@ import (
 	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"golang.org/x/crypto/bcrypt"
 	gomail "gopkg.in/mail.v2"
@@ -311,27 +312,50 @@ func SendMail(to string) string {
 }
 
 func ConfirmHandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	volunteerID := vars["id"]
-	volunteer, err := GetVolunteerByID(volunteerID)
-	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
-		ErrorHandler(w, r, http.StatusNotFound, "Volunteer not found")
-		log.Error(err.Error())
-		return
-	}
-	data := struct {
-		Volunteer models.Volunteer
-	}{
-		Volunteer: volunteer,
-	}
-	RenderTemplate(w, "chekingCode.html", data)
+    vars := mux.Vars(r)
+    volunteerID := vars["id"]
+    collection := db.Client.Database("SantaWeb").Collection("volunteers")
 
-	code := r.FormValue("confirmationCode")
+    id, err := primitive.ObjectIDFromHex(volunteerID)
+    if err != nil {
+        w.WriteHeader(http.StatusInternalServerError)
+        ErrorHandler(w, r, http.StatusInternalServerError, "Invalid volunteer ID")
+        log.Error(err.Error())
+        return
+    }
 
-	if volunteer.ConfirmCode == code {
-		volunteer.IsConfirmed = true
-		RenderTemplate(w, "vollogin.html", "incMsg")
-	}
+    var volunteer models.Volunteer
+    filter := bson.M{"_id": id}
+    err = collection.FindOne(context.TODO(), filter).Decode(&volunteer)
+    if err != nil {
+        if err == mongo.ErrNoDocuments {
+            w.WriteHeader(http.StatusNotFound)
+            ErrorHandler(w, r, http.StatusNotFound, "Volunteer not found")
+        } else {
+            w.WriteHeader(http.StatusInternalServerError)
+            ErrorHandler(w, r, http.StatusInternalServerError, "Database error")
+        }
+        log.Error(err.Error())
+        return
+    }
 
+    data := struct {
+        Volunteer models.Volunteer
+    }{
+        Volunteer: volunteer,
+    }
+    RenderTemplate(w, "checkingCode.html", data)
+
+    code := r.FormValue("confirmationCode")
+
+    if volunteer.ConfirmCode == code {
+        fmt.Println("equal")
+        update := bson.M{"$set": bson.M{"isConfirmed": true}}
+        _, err = collection.UpdateOne(context.TODO(), filter, update)
+        if err != nil {
+            log.Fatal(err)
+        }
+
+        http.Redirect(w, r, fmt.Sprintf("/vol/%s", volunteerID), http.StatusSeeOther)
+    }
 }

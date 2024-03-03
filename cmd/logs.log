@@ -123,3 +123,20 @@
 {"level":"info","msg":"Starting server on http://localhost::8080/\n","time":"2024-03-03T16:30:47+05:00"}
 {"level":"info","msg":"Starting server on http://localhost::8080/\n","time":"2024-03-03T16:31:41+05:00"}
 {"level":"error","msg":"write exception: write errors: [E11000 duplicate key error collection: SantaWeb.volunteers index: phone_1 dup key: { phone: \"qwer\" }]","time":"2024-03-03T16:32:58+05:00"}
+{"level":"info","msg":"Starting server on http://localhost::8080/\n","time":"2024-03-03T17:40:05+06:00"}
+{"level":"info","msg":"Starting server on http://localhost::8080/\n","time":"2024-03-03T17:43:31+06:00"}
+{"level":"info","msg":"Starting server on http://localhost::8080/\n","time":"2024-03-03T17:49:28+06:00"}
+{"level":"error","msg":"write exception: write errors: [E11000 duplicate key error collection: SantaWeb.volunteers index: phone_1 dup key: { phone: \"8\" }]","time":"2024-03-03T17:50:06+06:00"}
+{"level":"info","msg":"Starting server on http://localhost::8080/\n","time":"2024-03-03T17:50:57+06:00"}
+{"level":"info","msg":"Starting server on http://localhost::8080/\n","time":"2024-03-03T18:09:14+06:00"}
+{"level":"error","msg":"write exception: write errors: [E11000 duplicate key error collection: SantaWeb.volunteers index: phone_1 dup key: { phone: \"12\" }]","time":"2024-03-03T18:10:10+06:00"}
+{"level":"error","msg":"write exception: write errors: [E11000 duplicate key error collection: SantaWeb.volunteers index: phone_1 dup key: { phone: \"+7707418\" }]","time":"2024-03-03T18:10:59+06:00"}
+{"level":"info","msg":"Starting server on http://localhost::8080/\n","time":"2024-03-03T18:13:21+06:00"}
+{"level":"info","msg":"Starting server on http://localhost::8080/\n","time":"2024-03-03T18:16:08+06:00"}
+{"level":"error","msg":"write exception: write errors: [E11000 duplicate key error collection: SantaWeb.volunteers index: phone_1 dup key: { phone: \"0\" }]","time":"2024-03-03T18:16:38+06:00"}
+{"level":"error","msg":"write exception: write errors: [E11000 duplicate key error collection: SantaWeb.volunteers index: phone_1 dup key: { phone: \"0\" }]","time":"2024-03-03T18:16:46+06:00"}
+{"level":"error","msg":"write exception: write errors: [E11000 duplicate key error collection: SantaWeb.volunteers index: phone_1 dup key: { phone: \"0\" }]","time":"2024-03-03T18:16:54+06:00"}
+{"level":"info","msg":"Starting server on http://localhost::8080/\n","time":"2024-03-03T18:21:28+06:00"}
+{"level":"info","msg":"Starting server on http://localhost::8080/\n","time":"2024-03-03T18:26:32+06:00"}
+{"level":"info","msg":"Starting server on http://localhost::8080/\n","time":"2024-03-03T18:50:12+06:00"}
+{"level":"error","msg":"open ui/templates/checkingCode.html: The system cannot find the file specified.","time":"2024-03-03T18:50:26+06:00"}
