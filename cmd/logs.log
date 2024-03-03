@@ -66,3 +66,21 @@
 {"level":"error","msg":"Too Many Requests","time":"2024-03-02T13:26:11+06:00"}
 {"level":"error","msg":"Too Many Requests","time":"2024-03-02T13:26:12+06:00"}
 {"level":"error","msg":"Too Many Requests","time":"2024-03-02T13:26:12+06:00"}
+{"level":"info","msg":"Starting server on http://localhost::8080/\n","time":"2024-03-03T09:52:28+05:00"}
+{"level":"info","msg":"Starting server on http://localhost::8080/\n","time":"2024-03-03T10:00:19+05:00"}
+{"level":"error","msg":"write exception: write errors: [E11000 duplicate key error collection: SantaWeb.volunteers index: phone_1 dup key: { phone: \"123\" }]","time":"2024-03-03T10:00:39+05:00"}
+{"level":"error","msg":"write exception: write errors: [E11000 duplicate key error collection: SantaWeb.volunteers index: phone_1 dup key: { phone: \"123\" }]","time":"2024-03-03T10:01:02+05:00"}
+{"level":"error","msg":"error decoding children: error decoding key phone: cannot decode double into a string type","time":"2024-03-03T10:01:15+05:00"}
+{"level":"error","msg":"write exception: write errors: [E11000 duplicate key error collection: SantaWeb.volunteers index: phone_1 dup key: { phone: \"1234\" }]","time":"2024-03-03T10:01:55+05:00"}
+{"level":"error","msg":"error decoding children: error decoding key phone: cannot decode double into a string type","time":"2024-03-03T10:02:06+05:00"}
+{"level":"info","msg":"Starting server on http://localhost::8080/\n","time":"2024-03-03T10:02:15+05:00"}
+{"level":"error","msg":"error decoding children: error decoding key phone: cannot decode double into a string type","time":"2024-03-03T10:02:38+05:00"}
+{"level":"info","msg":"Starting server on http://localhost::8080/\n","time":"2024-03-03T10:07:13+05:00"}
+{"level":"error","msg":"error decoding children: error decoding key phone: cannot decode double into a string type","time":"2024-03-03T10:07:22+05:00"}
+{"level":"info","msg":"Starting server on http://localhost::8080/\n","time":"2024-03-03T10:07:48+05:00"}
+{"level":"error","msg":"error decoding children: error decoding key phone: cannot decode double into a string type","time":"2024-03-03T10:07:57+05:00"}
+{"level":"info","msg":"Starting server on http://localhost::8080/\n","time":"2024-03-03T10:10:03+05:00"}
+{"level":"info","msg":"Starting server on http://localhost::8080/\n","time":"2024-03-03T10:15:29+05:00"}
+{"level":"error","msg":"page does not exist","time":"2024-03-03T10:17:35+05:00"}
+{"level":"info","msg":"Starting server on http://localhost::8080/\n","time":"2024-03-03T10:28:50+05:00"}
+{"level":"error","msg":"error decoding children: error decoding key phone: cannot decode double into a string type","time":"2024-03-03T10:29:01+05:00"}

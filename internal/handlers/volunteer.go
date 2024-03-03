@@ -139,13 +139,17 @@ func VolunteerPersonalPageHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	children, totalCount, err := GetChildren(page, sortDirection, filter)
+	fmt.Println(children)
 	if err == fmt.Errorf("page does not exist") {
 		w.WriteHeader(http.StatusNotFound)
+		log.Error(err)
 		ErrorHandler(w, r, http.StatusNotFound, "Volunteer not found")
 		return
 	}
 	if err != nil {
+		fmt.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
+		log.Error(err)
 		ErrorHandler(w, r, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 		return
 	}
@@ -163,7 +167,7 @@ func VolunteerPersonalPageHandler(w http.ResponseWriter, r *http.Request) {
 		Pagination: pagination,
 		Sorting:    sortParam,
 	}
-
+	fmt.Println(data)
 	RenderTemplate(w, "vol.html", data)
 }
 
