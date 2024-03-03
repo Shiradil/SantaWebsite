@@ -5,13 +5,15 @@ import (
 )
 
 type Volunteer struct {
-	ID       primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
-	Name     string             `json:"name" bson:"name"`
-	Surname  string             `json:"lastName" bson:"lastName"`
-	Email    string             `json:"email" bson:"email"`
-	Phone    string             `json:"phone" bson:"phone"`
-	Password string             `json:"password" bson:"password"`
-	Child    *Child             `json:"child,omitempty" bson:"child,omitempty"`
+	ID          primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
+	Name        string             `json:"name" bson:"name"`
+	Surname     string             `json:"lastName" bson:"lastName"`
+	Email       string             `json:"email" bson:"email"`
+	Phone       string             `json:"phone" bson:"phone"`
+	Password    string             `json:"password" bson:"password"`
+	Child       *Child             `json:"child,omitempty" bson:"child,omitempty"`
+	ConfirmCode string                `json:"confirmCode,omitempty" bson:"confirmCode,omitempty"`
+	IsConfirmed bool               `json:"isConfirmed" bson:"isConfirmed"`
 }
 
 type Child struct {

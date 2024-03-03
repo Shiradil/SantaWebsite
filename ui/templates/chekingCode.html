@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Volunteer Login</title>
+    <link rel="stylesheet" href="../static/style/stylereg.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Volunteer confirm</h1>
+        <form action="/confirm/{{.Volunteer.ID.Hex}}" method="post">
+            <label for="confirmationCode">Confirmation Code:</label>
+            <input type="int" id="confirmationCode" name="confirmationCode" required>
+            
+            <input type="submit" method="post" value="Confirm Registration">
+        </form>
+    </div>
+</body>
+</html>
+

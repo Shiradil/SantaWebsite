@@ -84,3 +84,31 @@
 {"level":"error","msg":"page does not exist","time":"2024-03-03T10:17:35+05:00"}
 {"level":"info","msg":"Starting server on http://localhost::8080/\n","time":"2024-03-03T10:28:50+05:00"}
 {"level":"error","msg":"error decoding children: error decoding key phone: cannot decode double into a string type","time":"2024-03-03T10:29:01+05:00"}
+{"level":"info","msg":"Starting server on http://localhost::8080/\n","time":"2024-03-03T14:34:08+06:00"}
+{"level":"info","msg":"Starting server on http://localhost::8080/\n","time":"2024-03-03T15:26:19+06:00"}
+{"level":"error","msg":"write exception: write errors: [E11000 duplicate key error collection: SantaWeb.volunteers index: phone_1 dup key: { phone: \"+77074105067\" }]","time":"2024-03-03T15:27:36+06:00"}
+{"level":"error","msg":"write exception: write errors: [E11000 duplicate key error collection: SantaWeb.volunteers index: phone_1 dup key: { phone: \"+77074105067\" }]","time":"2024-03-03T15:27:44+06:00"}
+{"level":"error","msg":"write exception: write errors: [E11000 duplicate key error collection: SantaWeb.volunteers index: phone_1 dup key: { phone: \"+77074105067\" }]","time":"2024-03-03T15:28:25+06:00"}
+{"level":"error","msg":"write exception: write errors: [E11000 duplicate key error collection: SantaWeb.volunteers index: phone_1 dup key: { phone: \"+77074105067\" }]","time":"2024-03-03T15:28:26+06:00"}
+{"level":"info","msg":"Starting server on http://localhost::8080/\n","time":"2024-03-03T15:29:55+06:00"}
+{"level":"error","msg":"write exception: write errors: [E11000 duplicate key error collection: SantaWeb.volunteers index: phone_1 dup key: { phone: \"+77074105067\" }]","time":"2024-03-03T15:30:12+06:00"}
+{"level":"error","msg":"write exception: write errors: [E11000 duplicate key error collection: SantaWeb.volunteers index: phone_1 dup key: { phone: \"1\" }]","time":"2024-03-03T15:32:07+06:00"}
+{"level":"info","msg":"Starting server on http://localhost::8080/\n","time":"2024-03-03T15:35:03+06:00"}
+{"level":"error","msg":"write exception: write errors: [E11000 duplicate key error collection: SantaWeb.volunteers index: phone_1 dup key: { phone: \"1\" }]","time":"2024-03-03T15:35:49+06:00"}
+{"level":"info","msg":"Starting server on http://localhost::8080/\n","time":"2024-03-03T15:37:18+06:00"}
+{"level":"error","msg":"write exception: write errors: [E11000 duplicate key error collection: SantaWeb.volunteers index: phone_1 dup key: { phone: \"1\" }]","time":"2024-03-03T15:37:46+06:00"}
+{"level":"info","msg":"Starting server on http://localhost::8080/\n","time":"2024-03-03T15:45:47+06:00"}
+{"level":"error","msg":"error finding volunteer: error decoding key confirmCode: cannot decode 32-bit integer into a string type","time":"2024-03-03T15:46:10+06:00"}
+{"level":"error","msg":"write exception: write errors: [E11000 duplicate key error collection: SantaWeb.volunteers index: phone_1 dup key: { phone: \"+77074105067\" }]","time":"2024-03-03T15:46:17+06:00"}
+{"level":"error","msg":"write exception: write errors: [E11000 duplicate key error collection: SantaWeb.volunteers index: phone_1 dup key: { phone: \"+77074105067\" }]","time":"2024-03-03T15:48:33+06:00"}
+{"level":"info","msg":"Starting server on http://localhost::8080/\n","time":"2024-03-03T15:51:55+06:00"}
+{"level":"info","msg":"Starting server on http://localhost::8080/\n","time":"2024-03-03T15:54:52+06:00"}
+{"level":"error","msg":"invalid volunteer ID: the provided hex string is not a valid ObjectID","time":"2024-03-03T15:55:06+06:00"}
+{"level":"info","msg":"Starting server on http://localhost::8080/\n","time":"2024-03-03T15:55:38+06:00"}
+{"level":"error","msg":"invalid volunteer ID: the provided hex string is not a valid ObjectID","time":"2024-03-03T15:56:03+06:00"}
+{"level":"error","msg":"invalid volunteer ID: the provided hex string is not a valid ObjectID","time":"2024-03-03T15:56:07+06:00"}
+{"level":"error","msg":"template: chekingCode.html:12:43: executing \"chekingCode.html\" at \u003c.Volunteer.ID.Hex\u003e: can't evaluate field Volunteer in type string","time":"2024-03-03T15:56:45+06:00"}
+{"level":"error","msg":"template: chekingCode.html:12:43: executing \"chekingCode.html\" at \u003c.Volunteer.ID.Hex\u003e: can't evaluate field Volunteer in type string","time":"2024-03-03T15:58:09+06:00"}
+{"level":"error","msg":"template: chekingCode.html:12:43: executing \"chekingCode.html\" at \u003c.Volunteer.ID.Hex\u003e: can't evaluate field Volunteer in type string","time":"2024-03-03T15:58:11+06:00"}
+{"level":"error","msg":"invalid volunteer ID: the provided hex string is not a valid ObjectID","time":"2024-03-03T15:58:34+06:00"}
+{"level":"error","msg":"template: chekingCode.html:12:43: executing \"chekingCode.html\" at \u003c.Volunteer.ID.Hex\u003e: can't evaluate field Volunteer in type string","time":"2024-03-03T15:58:55+06:00"}

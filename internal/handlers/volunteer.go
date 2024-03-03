@@ -4,14 +4,19 @@ import (
 	"SantaWeb/internal/db"
 	"SantaWeb/models"
 	"context"
+	"crypto/tls"
 	"fmt"
+	"math/rand"
+	"net/http"
+	"strconv"
+	"time"
+
 	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"golang.org/x/crypto/bcrypt"
-	"net/http"
-	"strconv"
+	gomail "gopkg.in/mail.v2"
 )
 
 const pageSize = 10
@@ -43,8 +48,11 @@ func VolLoginHandler(w http.ResponseWriter, r *http.Request) {
 			RenderTemplate(w, "vollogin.html", incMsg)
 			return
 		}
-
-		http.Redirect(w, r, fmt.Sprintf("/vol/%s", volunteer.ID.Hex()), http.StatusSeeOther)
+		if volunteer.IsConfirmed {
+			http.Redirect(w, r, fmt.Sprintf("/vol/%s", volunteer.ID.Hex()), http.StatusSeeOther)
+		} else {
+			RenderTemplate(w, "vollogin.html", incMsg)
+		}
 	} else if r.Method == "GET" {
 		RenderTemplate(w, "vollogin.html", nil)
 	} else {
@@ -69,13 +77,16 @@ func VolRegHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		code := SendMail(email)
+
 		volunteer := models.Volunteer{
-			Name:     firstName,
-			Surname:  lastName,
-			Email:    email,
-			Phone:    phone,
-			Password: string(hashedPassword),
-			Child:    &models.Child{},
+			Name:        firstName,
+			Surname:     lastName,
+			Email:       email,
+			Phone:       phone,
+			Password:    string(hashedPassword),
+			Child:       &models.Child{},
+			ConfirmCode: code,
 		}
 
 		collection := db.Client.Database("SantaWeb").Collection("volunteers")
@@ -89,7 +100,7 @@ func VolRegHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		insertedID := result.InsertedID.(primitive.ObjectID)
-		http.Redirect(w, r, fmt.Sprintf("/vol/%s", insertedID.Hex()), http.StatusSeeOther)
+		http.Redirect(w, r, fmt.Sprintf("/confirm/%s", insertedID.Hex()), http.StatusSeeOther)
 	} else if r.Method == "GET" {
 		RenderTemplate(w, "volreg.html", nil)
 	} else {
@@ -265,4 +276,58 @@ func GetChildren(page int, sortDirection int, filter bson.D) ([]models.Child, in
 	}
 
 	return children, totalPages, nil
+}
+
+// vol email
+func SendMail(to string) string {
+	from := "220680@astanait.edu.kz"
+
+	rand.Seed(time.Now().UnixNano())
+	randomNumber := rand.Intn(900000) + 100000 
+	code := randomNumber
+
+	message := fmt.Sprintf("Ваш код: %d", randomNumber)
+
+	m := gomail.NewMessage()
+	m.SetHeader("From", from)
+	m.SetHeader("To", to)
+	m.SetHeader("Subject", "Ваш уникальный код")
+
+	m.SetBody("text/plain", message)
+
+	d := gomail.NewDialer(
+		"smtp-mail.outlook.com", 587,
+		"220680@astanait.edu.kz",
+		"1MToT3pTDm0Ah",
+	)
+
+	d.TLSConfig = &tls.Config{InsecureSkipVerify: true}
+
+	if err := d.DialAndSend(m); err != nil {
+		fmt.Println(err)
+	}
+
+	return strconv.Itoa(code)
+}
+
+func ConfirmHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	volunteerID := vars["id"]
+	volunteer, err := GetVolunteerByID(volunteerID)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		ErrorHandler(w, r, http.StatusNotFound, "Volunteer not found")
+		log.Error(err.Error())
+		return
+	}
+	RenderTemplate(w, "chekingCode.html", "d")
+
+	code := r.FormValue("confirmationCode")
+	
+
+	if volunteer.ConfirmCode == code {
+		volunteer.IsConfirmed = true
+		RenderTemplate(w, "vollogin.html", "incMsg")
+	}
+
 }
